@@ -8,7 +8,18 @@ public class TPPMulti : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", 
+			"CoreUObject", 
+            "Engine",
+            "InputCore",
+            "EnhancedInput",
+            "DeveloperSettings",
+            "UMG",
+            "Slate",
+            "SlateCore"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
