@@ -49,8 +49,11 @@ public:
 
 private:
 
+	FString CreateServerTravelLink(const FString& InWorldPath);
+
 	IOnlineSessionPtr OnlineSessionPtr;
 	void CreateSession_Internal(const TMap<FName, FString>& InSessionSettings);
+	void CloseSession_Internal();
 
 	UFUNCTION()
 	void OnSessionCreated(FName InSessionName, bool InWasSuccessful);
@@ -60,6 +63,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
 	static void CreateSession(const TMap<FName, FString>& InSessionSettings, const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
+	static void CloseSession(const UObject* WorldContextObject);
+	
 #pragma endregion 
 	
 };

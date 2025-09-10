@@ -27,6 +27,9 @@ private:
 	UPROPERTY(EditAnywhere, Config, DisplayName = "Lobby World", meta=(AllowedClasses="/Script/Engine.World"))
 	FSoftObjectPath LobbyWorldPath;
 
+	UPROPERTY(EditAnywhere, Config, DisplayName = "Session destroyed return World", meta=(AllowedClasses="/Script/Engine.World"))
+	FSoftObjectPath SessionDestroyedReturnWorldPath;
+
 public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
@@ -37,5 +40,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static FSoftObjectPath GetLobbyWorldPath();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
+	static FSoftObjectPath GetSessionDestroyedReturnWorldPath();
 	
 };

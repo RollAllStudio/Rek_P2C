@@ -40,12 +40,22 @@ FText UMultiplayerGameSubsystem::GetLocalSessionName(const UObject* WorldContext
 	return GetSubsystem(WorldContextObject)->LocalSessionName;
 }
 
+FString UMultiplayerGameSubsystem::CreateServerTravelLink(const FString& InWorldPath)
+{
+	FString ReturnBuffer = InWorldPath;
+	int32 DotIndex = INDEX_NONE;
+	if (ReturnBuffer.FindLastChar('.', DotIndex))
+	{
+		ReturnBuffer = ReturnBuffer.Left(DotIndex);
+	}
+	ReturnBuffer += TEXT("?listen");
+	return ReturnBuffer;
+}
+
 void UMultiplayerGameSubsystem::CreateSession_Internal(const TMap<FName, FString>& InSessionSettings)
 {
 	
-	auto ExistingSession = OnlineSessionPtr->GetNamedSession(NAME_GameSession);
-	if (ExistingSession != nullptr)
-		OnlineSessionPtr->DestroySession(NAME_GameSession);
+	CloseSession_Internal();
 
 	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
 
@@ -66,22 +76,30 @@ void UMultiplayerGameSubsystem::CreateSession_Internal(const TMap<FName, FString
 	
 }
 
+void UMultiplayerGameSubsystem::CloseSession_Internal()
+{
+	auto ExistingSession = OnlineSessionPtr->GetNamedSession(NAME_GameSession);
+	if (ExistingSession != nullptr)
+	{
+		OnlineSessionPtr->DestroySession(NAME_GameSession);
+		GetWorld()->ServerTravel(CreateServerTravelLink(
+			UMultiplayerGameConstants::GetSessionDestroyedReturnWorldPath().ToString()));
+	}
+}
+
 void UMultiplayerGameSubsystem::OnSessionCreated(FName InSessionName, bool InWasSuccessful)
 {
-	FString LobbyTravelPath = UMultiplayerGameConstants::GetLobbyWorldPath().ToString();
-
-	int32 DotIndex = INDEX_NONE;
-	if (LobbyTravelPath.FindLastChar('.', DotIndex))
-	{
-		LobbyTravelPath = LobbyTravelPath.Left(DotIndex);
-	}
-	
-	LobbyTravelPath += TEXT("?listen");
-	GetWorld()->ServerTravel(LobbyTravelPath);
+	GetWorld()->ServerTravel(CreateServerTravelLink(
+		UMultiplayerGameConstants::GetLobbyWorldPath().ToString()));
 }
 
 void UMultiplayerGameSubsystem::CreateSession(const TMap<FName, FString>& InSessionSettings,
                                               const UObject* WorldContextObject)
 {
 	GetSubsystem(WorldContextObject)->CreateSession_Internal(InSessionSettings);
+}
+
+void UMultiplayerGameSubsystem::CloseSession(const UObject* WorldContextObject)
+{
+	GetSubsystem(WorldContextObject)->CloseSession_Internal();
 }

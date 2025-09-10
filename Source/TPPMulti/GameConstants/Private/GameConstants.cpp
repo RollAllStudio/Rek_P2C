@@ -12,3 +12,8 @@ TSubclassOf<UMainMenuWidget> UGameConstants::GetMainMenuWidgetClass()
 {
 	return Get()->MainMenuWidgetClass;
 }
+
+TSubclassOf<ULobbyWidget> UGameConstants::GetLobbyWidgetClass()
+{
+	return Get()->LobbyWidgetClass;
+}

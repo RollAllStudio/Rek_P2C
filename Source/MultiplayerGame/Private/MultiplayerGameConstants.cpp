@@ -22,3 +22,8 @@ FSoftObjectPath UMultiplayerGameConstants::GetLobbyWorldPath()
 {
 	return Get()->LobbyWorldPath;
 }
+
+FSoftObjectPath UMultiplayerGameConstants::GetSessionDestroyedReturnWorldPath()
+{
+	return Get()->SessionDestroyedReturnWorldPath;
+}
