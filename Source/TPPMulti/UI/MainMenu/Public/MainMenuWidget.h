@@ -16,24 +16,34 @@ UCLASS()
 class TPPMULTI_API UMainMenuWidget : public UUserWidget
 {
 	GENERATED_BODY()
-
-private:
-
+	
 	UFUNCTION()
 	void OnClicked_HostGameButton();
 
 	UFUNCTION()
 	void OnClicked_ExitGameButton();
+	
+protected:
 
+	virtual void NativeOnInitialized() override;
+
+#pragma region SessionNameBox
+
+private:
+	
+	UPROPERTY()
+	FText SessionNameBox_CachedText;
+	
 	UFUNCTION()
 	void OnTextChanged_SessionNameBox(const FText& InNewText);
 
 	UFUNCTION()
 	void OnTextCommitted_SessionNameBox(const FText& InNewText, ETextCommit::Type InCommitMethod);
-	
-protected:
 
-	virtual void NativeOnInitialized() override;
+	UFUNCTION()
+	void OnLocalSessionNameChanged(const FText& InNewSessionName);
+	
+#pragma endregion 
 	
 #pragma region BindWidget
 

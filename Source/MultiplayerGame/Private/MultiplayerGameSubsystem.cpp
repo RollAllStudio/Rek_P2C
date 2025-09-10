@@ -1,0 +1,87 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "MultiplayerGameSubsystem.h"
+
+#include "MultiplayerGameConstants.h"
+#include "OnlineSessionSettings.h"
+#include "OnlineSubsystem.h"
+#include "Interfaces/OnlineSessionInterface.h"
+#include "Kismet/GameplayStatics.h"
+
+UMultiplayerGameSubsystem* UMultiplayerGameSubsystem::GetSubsystem(const UObject* WorldContextObject)
+{
+	return UGameplayStatics::GetGameInstance(WorldContextObject)->GetSubsystem<UMultiplayerGameSubsystem>();
+}
+
+void UMultiplayerGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
+{
+	Super::Initialize(Collection);
+	const IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get();
+	OnlineSessionPtr = OnlineSubsystem->GetSessionInterface();
+}
+
+void UMultiplayerGameSubsystem::SetLocalSessionName_Internal(const FText& InNewSessionName)
+{
+	if (!InNewSessionName.EqualTo(LocalSessionName))
+	{
+		LocalSessionName = InNewSessionName;
+		OnLocalSessionNameChanged.Broadcast(LocalSessionName);
+	}
+}
+
+void UMultiplayerGameSubsystem::SetLocalSessionName(const FText& InNewSessionName, const UObject* WorldContextObject)
+{
+	GetSubsystem(WorldContextObject)->SetLocalSessionName_Internal(InNewSessionName);
+}
+
+FText UMultiplayerGameSubsystem::GetLocalSessionName(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->LocalSessionName;
+}
+
+void UMultiplayerGameSubsystem::CreateSession_Internal(const TMap<FName, FString>& InSessionSettings)
+{
+	
+	auto ExistingSession = OnlineSessionPtr->GetNamedSession(NAME_GameSession);
+	if (ExistingSession != nullptr)
+		OnlineSessionPtr->DestroySession(NAME_GameSession);
+
+	TSharedPtr<FOnlineSessionSettings> SessionSettings = MakeShareable(new FOnlineSessionSettings());
+
+	SessionSettings->bIsLANMatch = true;
+	SessionSettings->NumPublicConnections = UMultiplayerGameConstants::GetMaxPublicConnections();
+	SessionSettings->bShouldAdvertise = true;
+	SessionSettings->bUsesPresence = true;
+	SessionSettings->bAllowJoinInProgress = true;
+	SessionSettings->bAllowJoinViaPresence = true;
+
+	for (auto SessionSetting : InSessionSettings)
+		SessionSettings->Set(SessionSetting.Key, SessionSetting.Value);
+
+	OnlineSessionPtr->AddOnCreateSessionCompleteDelegate_Handle(
+		FOnCreateSessionCompleteDelegate::CreateUObject(this, &UMultiplayerGameSubsystem::OnSessionCreated));
+
+	OnlineSessionPtr->CreateSession(0, NAME_GameSession, *SessionSettings);
+	
+}
+
+void UMultiplayerGameSubsystem::OnSessionCreated(FName InSessionName, bool InWasSuccessful)
+{
+	FString LobbyTravelPath = UMultiplayerGameConstants::GetLobbyWorldPath().ToString();
+
+	int32 DotIndex = INDEX_NONE;
+	if (LobbyTravelPath.FindLastChar('.', DotIndex))
+	{
+		LobbyTravelPath = LobbyTravelPath.Left(DotIndex);
+	}
+	
+	LobbyTravelPath += TEXT("?listen");
+	GetWorld()->ServerTravel(LobbyTravelPath);
+}
+
+void UMultiplayerGameSubsystem::CreateSession(const TMap<FName, FString>& InSessionSettings,
+                                              const UObject* WorldContextObject)
+{
+	GetSubsystem(WorldContextObject)->CreateSession_Internal(InSessionSettings);
+}
