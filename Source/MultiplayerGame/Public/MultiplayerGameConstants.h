@@ -24,6 +24,9 @@ private:
 	UPROPERTY(EditAnywhere, Config)
 	int MaxPublicConnections = 2;
 
+	UPROPERTY(EditAnywhere, Config)
+	int MaxSessionsFind = 10;	
+
 	UPROPERTY(EditAnywhere, Config, DisplayName = "Lobby World", meta=(AllowedClasses="/Script/Engine.World"))
 	FSoftObjectPath LobbyWorldPath;
 
@@ -38,6 +41,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static int GetMaxPublicConnections();
 
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
+	static int GetMaxSessionsFind();
+	
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static FSoftObjectPath GetLobbyWorldPath();
 

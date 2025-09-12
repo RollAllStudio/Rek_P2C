@@ -23,7 +23,8 @@ void ULobbyWidget::NativeOnInitialized()
 
 	StartMatchButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_StartMatchButton);
 	CloseSessionButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_CloseSessionButton);
-	SessionNameBox->SetText(UMultiplayerGameSubsystem::GetLocalSessionName(this));
+	SessionNameBox->SetText(UMultiplayerGameSubsystem::GetLocalJoinedSessionName(this));
+	StartMatchButton->SetIsEnabled(UMultiplayerGameSubsystem::IsHost(this));
 
 	GetOwningPlayer()->SetShowMouseCursor(true);
 	

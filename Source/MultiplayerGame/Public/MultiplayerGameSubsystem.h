@@ -9,7 +9,12 @@
 
 #define SESSION_SETTING_NAME_SESSION_NAME FName("SessionName")
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_TextEvent, const FText&, NewText);
+class USessionsFindResult;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMultiplayerGameSubsystem_EmptyEvent_Singature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_TextEvent_Signature, const FText&, NewText);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_SessionsFindComplete_Signature,
+	USessionsFindResult*, SessionsFindPtr);
 
 UCLASS()
 class MULTIPLAYERGAME_API UMultiplayerGameSubsystem : public UGameInstanceSubsystem
@@ -28,20 +33,32 @@ public:
 private:
 	
 	UPROPERTY()
-	FText LocalSessionName;
+	FText LocalHostedSessionName;
+
+	UPROPERTY()
+	FText LocalJoinedSessionName;
+
+	UPROPERTY()
+	bool bIsHost;
 
 	void SetLocalSessionName_Internal(const FText& InNewSessionName);
 
 public:
 
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
-	static void SetLocalSessionName(const FText& InNewSessionName, const UObject* WorldContextObject);
+	static void SetLocalHostedSessionName(const FText& InNewSessionName, const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
-	static FText GetLocalSessionName(const UObject* WorldContextObject);
+	static FText GetLocalHostedSessionName(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static FText GetLocalJoinedSessionName(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static bool IsHost(const UObject* WorldContextObject);
+	
 	UPROPERTY(BlueprintAssignable)
-	FMultiplayerGameSubsystem_TextEvent OnLocalSessionNameChanged;
+	FMultiplayerGameSubsystem_TextEvent_Signature OnLocalSessionNameChanged;
 	
 #pragma endregion
 
@@ -51,20 +68,48 @@ private:
 
 	FString CreateServerTravelLink(const FString& InWorldPath);
 
-	IOnlineSessionPtr OnlineSessionPtr;
+	IOnlineSessionPtr OnlineSessionsPtr;
+	TSharedPtr<FOnlineSessionSearch> SessionSearchPtr;
+	bool bLoopingFindSessions = false;
+	bool bIsLookingForSessions = false;
+	
 	void CreateSession_Internal(const TMap<FName, FString>& InSessionSettings);
 	void CloseSession_Internal();
+	void StartFindSessionsLoop_Internal();
+	void StopFindSessionsLoop_Internal();
+	void StartNextFindSessions();
+	void JoinSessionByIndex_Internal(const int32& InSessionIndex);
 
 	UFUNCTION()
 	void OnSessionCreated(FName InSessionName, bool InWasSuccessful);
+
+	UFUNCTION()
+	void OnSessionSearchComplete(bool InWasSuccessful);
+
+	void OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result);
 	
 public:
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_SessionsFindComplete_Signature OnSessionsFindComplete;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_EmptyEvent_Singature OnStartJoiningSession;
 
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
 	static void CreateSession(const TMap<FName, FString>& InSessionSettings, const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
 	static void CloseSession(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
+	static void StartFindSessionsLoop(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
+	static void StopFindSessionsLoop(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
+	static void JoinSessionByIndex(const UObject* WorldContextObject, const int32& InSessionIndex);	
 	
 #pragma endregion 
 	

@@ -6,6 +6,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "GameConstants.generated.h"
 
+class USessionJoinSlotWidget;
 class ULobbyWidget;
 class UMainMenuWidget;
 /**
@@ -27,6 +28,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Config, Category = UI)
 	TSubclassOf<ULobbyWidget> LobbyWidgetClass;
+
+	UPROPERTY(EditAnywhere, Config, Category = UI)
+	TSubclassOf<USessionJoinSlotWidget> SessionJoinWidgetSlotClass;	
 	
 public:
 
@@ -35,6 +39,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|UI")
 	static TSubclassOf<ULobbyWidget> GetLobbyWidgetClass();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|UI")
+	static TSubclassOf<USessionJoinSlotWidget> GetSessionJoinWidgetSlotClass();
 	
 #pragma endregion 
 	

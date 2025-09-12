@@ -18,6 +18,11 @@ int UMultiplayerGameConstants::GetMaxPublicConnections()
 	return Get()->MaxPublicConnections;
 }
 
+int UMultiplayerGameConstants::GetMaxSessionsFind()
+{
+	return Get()->MaxSessionsFind;
+}
+
 FSoftObjectPath UMultiplayerGameConstants::GetLobbyWorldPath()
 {
 	return Get()->LobbyWorldPath;

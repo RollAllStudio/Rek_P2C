@@ -15,7 +15,7 @@ void UMainMenuWidget::OnClicked_HostGameButton()
 	TMap<FName, FString> SessionSettings;
 	SessionSettings.Add(
 		SESSION_SETTING_NAME_SESSION_NAME,
-		UMultiplayerGameSubsystem::GetLocalSessionName(this).ToString());
+		UMultiplayerGameSubsystem::GetLocalHostedSessionName(this).ToString());
 
 	UMultiplayerGameSubsystem::CreateSession(SessionSettings, this);
 }
@@ -35,7 +35,7 @@ void UMainMenuWidget::OnTextChanged_SessionNameBox(const FText& InNewText)
 
 void UMainMenuWidget::OnTextCommitted_SessionNameBox(const FText& InNewText, ETextCommit::Type InCommitMethod)
 {
-	UMultiplayerGameSubsystem::SetLocalSessionName(InNewText, this);
+	UMultiplayerGameSubsystem::SetLocalHostedSessionName(InNewText, this);
 }
 
 void UMainMenuWidget::OnLocalSessionNameChanged(const FText& InNewSessionName)
@@ -55,7 +55,7 @@ void UMainMenuWidget::NativeOnInitialized()
 
 	GetOwningPlayer()->SetShowMouseCursor(true);
 
-	SessionNameBox_CachedText = UMultiplayerGameSubsystem::GetLocalSessionName(this);
+	SessionNameBox_CachedText = UMultiplayerGameSubsystem::GetLocalHostedSessionName(this);
 	SessionNameBox->SetText(SessionNameBox_CachedText);
 	OnLocalSessionNameChanged(SessionNameBox_CachedText);
 	UMultiplayerGameSubsystem* MultiplayerGameSubsystem =
