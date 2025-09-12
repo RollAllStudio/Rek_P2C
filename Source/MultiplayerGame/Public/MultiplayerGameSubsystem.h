@@ -13,6 +13,7 @@ class USessionsFindResult;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMultiplayerGameSubsystem_EmptyEvent_Singature);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_TextEvent_Signature, const FText&, NewText);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_BoolEvent_Signature, const bool, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_SessionsFindComplete_Signature,
 	USessionsFindResult*, SessionsFindPtr);
 
@@ -41,7 +42,15 @@ private:
 	UPROPERTY()
 	bool bIsHost;
 
+	UPROPERTY()
+	FText LocalPlayerName;
+
+	UPROPERTY()
+	bool bCanHostSession;
+
 	void SetLocalSessionName_Internal(const FText& InNewSessionName);
+	void SetLocalPlayerName_Internal(const FText& InNewPlayerName);
+	void OnHostConditionsChanged();
 
 public:
 
@@ -51,6 +60,15 @@ public:
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static FText GetLocalHostedSessionName(const UObject* WorldContextObject);
 
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static void SetLocalPlayerName(const UObject* WorldContextObject, const FText& InNewName);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static FText GetLocalPlayerName(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static bool CanHostSession(const UObject* WorldContextObject);
+	
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static FText GetLocalJoinedSessionName(const UObject* WorldContextObject);
 
@@ -59,6 +77,12 @@ public:
 	
 	UPROPERTY(BlueprintAssignable)
 	FMultiplayerGameSubsystem_TextEvent_Signature OnLocalSessionNameChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_TextEvent_Signature OnLocalPlayerNameChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_BoolEvent_Signature OnCanHostSessionChanged;
 	
 #pragma endregion
 

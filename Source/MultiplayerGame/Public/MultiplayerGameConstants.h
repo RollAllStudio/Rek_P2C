@@ -22,6 +22,9 @@ private:
 	int MaxSessionNameLen = 25;
 
 	UPROPERTY(EditAnywhere, Config)
+	int MaxPlayerNameLen = 25;
+	
+	UPROPERTY(EditAnywhere, Config)
 	int MaxPublicConnections = 2;
 
 	UPROPERTY(EditAnywhere, Config)
@@ -34,9 +37,12 @@ private:
 	FSoftObjectPath SessionDestroyedReturnWorldPath;
 
 public:
-
+	
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static int GetMaxSessionNameLen();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
+	static int GetMasPlayerNameLen();
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static int GetMaxPublicConnections();

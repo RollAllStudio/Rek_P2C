@@ -13,6 +13,11 @@ int UMultiplayerGameConstants::GetMaxSessionNameLen()
 	return Get()->MaxSessionNameLen;
 }
 
+int UMultiplayerGameConstants::GetMasPlayerNameLen()
+{
+	return Get()->MaxPlayerNameLen;
+}
+
 int UMultiplayerGameConstants::GetMaxPublicConnections()
 {
 	return Get()->MaxPublicConnections;

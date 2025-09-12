@@ -22,10 +22,28 @@ class TPPMULTI_API UMainMenuWidget : public UUserWidget
 
 	UFUNCTION()
 	void OnClicked_ExitGameButton();
+
+	UFUNCTION()
+	void OnCanHostChanged(const bool InNewValue);
 	
 protected:
 
 	virtual void NativeOnInitialized() override;
+
+#pragma region PlayerNameBox
+
+private:
+
+	UPROPERTY()
+	FText PlayerNameBox_CachedText;
+
+	UFUNCTION()
+	void OnTextChanged_PlayerNameBox(const FText& InNewText);
+
+	UFUNCTION()
+	void OnTextCommitted_PlayerNameBox(const FText& InNewText, ETextCommit::Type InCommitMethod);
+	
+#pragma endregion 
 
 #pragma region SessionNameBox
 
@@ -39,15 +57,15 @@ private:
 
 	UFUNCTION()
 	void OnTextCommitted_SessionNameBox(const FText& InNewText, ETextCommit::Type InCommitMethod);
-
-	UFUNCTION()
-	void OnLocalSessionNameChanged(const FText& InNewSessionName);
 	
 #pragma endregion 
 	
 #pragma region BindWidget
 
 private:
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetPlayerNameBox)
+	TObjectPtr<UEditableTextBox> PlayerNameBox;
 	
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetSessionNameBox)
 	TObjectPtr<UEditableTextBox> SessionNameBox;
@@ -62,6 +80,12 @@ private:
 	TObjectPtr<UButton> ExitGameButton;
 	
 public:
+
+	UFUNCTION(BlueprintGetter)
+	UEditableTextBox* GetPlayerNameBox() const
+	{
+		return PlayerNameBox;
+	}
 
 	UFUNCTION(BlueprintGetter)
 	UEditableTextBox* GetSessionNameBox() const

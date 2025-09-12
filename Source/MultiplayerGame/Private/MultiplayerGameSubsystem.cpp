@@ -30,12 +30,28 @@ void UMultiplayerGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		FOnJoinSessionCompleteDelegate::CreateUObject(this, &UMultiplayerGameSubsystem::OnJoinSessionComplete));
 }
 
+#define TRY_CHANGE_LOCAL_TEXT(TextVar, NewText, ChangeDelegate) \
+	if (! TextVar .EqualTo( NewText )) { TextVar = NewText ; ChangeDelegate .Broadcast( TextVar );}
+
 void UMultiplayerGameSubsystem::SetLocalSessionName_Internal(const FText& InNewSessionName)
 {
-	if (!InNewSessionName.EqualTo(LocalHostedSessionName))
+	TRY_CHANGE_LOCAL_TEXT(LocalHostedSessionName, InNewSessionName, OnLocalSessionNameChanged)
+	OnHostConditionsChanged();
+}
+
+void UMultiplayerGameSubsystem::SetLocalPlayerName_Internal(const FText& InNewPlayerName)
+{
+	TRY_CHANGE_LOCAL_TEXT(LocalPlayerName, InNewPlayerName, OnLocalPlayerNameChanged)
+	OnHostConditionsChanged();
+}
+
+void UMultiplayerGameSubsystem::OnHostConditionsChanged()
+{
+	const bool NewVar = !LocalHostedSessionName.IsEmpty() && !LocalPlayerName.IsEmpty();
+	if (bCanHostSession != NewVar)
 	{
-		LocalHostedSessionName = InNewSessionName;
-		OnLocalSessionNameChanged.Broadcast(LocalHostedSessionName);
+		bCanHostSession = NewVar;
+		OnCanHostSessionChanged.Broadcast(bCanHostSession);
 	}
 }
 
@@ -47,6 +63,21 @@ void UMultiplayerGameSubsystem::SetLocalHostedSessionName(const FText& InNewSess
 FText UMultiplayerGameSubsystem::GetLocalHostedSessionName(const UObject* WorldContextObject)
 {
 	return GetSubsystem(WorldContextObject)->LocalHostedSessionName;
+}
+
+void UMultiplayerGameSubsystem::SetLocalPlayerName(const UObject* WorldContextObject, const FText& InNewName)
+{
+	GetSubsystem(WorldContextObject)->SetLocalPlayerName_Internal(InNewName);
+}
+
+FText UMultiplayerGameSubsystem::GetLocalPlayerName(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->LocalPlayerName;
+}
+
+bool UMultiplayerGameSubsystem::CanHostSession(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->bCanHostSession;
 }
 
 FText UMultiplayerGameSubsystem::GetLocalJoinedSessionName(const UObject* WorldContextObject)
