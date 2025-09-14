@@ -7,13 +7,17 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
+#include "Kismet/GameplayStatics.h"
+#include "TPPMulti/Core/GameStates/Public/LobbyGameState.h"
 #include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/UI/Lobby/Public/LobbyPlayerSlotWidget.h"
 
 void ULobbyWidget::OnClicked_StartMatchButton()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Start match button clicked");
+	ALobbyGameState* LobbyGameState = Cast<ALobbyGameState>(UGameplayStatics::GetGameState(this));
+	LobbyGameState->NetMulticast_StartTravelToMatchWorld();
+	UMultiplayerGameSubsystem::TravelToMap(this, UGameConstants::GetMatchWorldPath());
 }
 
 void ULobbyWidget::OnClicked_ReadyButton()
@@ -135,5 +139,8 @@ void ULobbyWidget::NativeOnInitialized()
 		this, &ULobbyWidget::OnServerPlayerLogout);
 	
 	GetOwningPlayer()->SetShowMouseCursor(true);
+
+	ALobbyGameState* LobbyGameState = Cast<ALobbyGameState>(UGameplayStatics::GetGameState(this));
+	LobbyGameState->OnStartTravelToMatchWorld.AddUniqueDynamic(this, &ULobbyWidget::OnStartTravelToMatchWorld);
 	
 }

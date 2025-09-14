@@ -19,6 +19,20 @@ class TPPMULTI_API UGameConstants : public UDeveloperSettings
 	GENERATED_BODY()
 
 	static const UGameConstants* Get();
+
+#pragma region Match
+
+private:
+	
+	UPROPERTY(EditAnywhere, Config, Category = "Match", DisplayName = "Lobby World", meta=(AllowedClasses="/Script/Engine.World"))
+	FSoftObjectPath MatchWorldPath;
+
+public:
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Match")
+	static FSoftObjectPath GetMatchWorldPath();
+	
+#pragma endregion 
 	
 #pragma region UI
 

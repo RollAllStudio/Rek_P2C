@@ -161,6 +161,7 @@ private:
 	void StopFindSessionsLoop_Internal();
 	void StartNextFindSessions();
 	void JoinSessionByIndex_Internal(const int32& InSessionIndex);
+	void TravelToMap_Internal(const FSoftObjectPath& InMapPath);
 
 	UFUNCTION()
 	void OnSessionCreated(FName InSessionName, bool InWasSuccessful);
@@ -191,7 +192,10 @@ public:
 	static void StopFindSessionsLoop(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
-	static void JoinSessionByIndex(const UObject* WorldContextObject, const int32& InSessionIndex);	
+	static void JoinSessionByIndex(const UObject* WorldContextObject, const int32& InSessionIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|Sessions", meta=(WorldContext = WorldContextObject))
+	static void TravelToMap(const UObject* WorldContextObject, const FSoftObjectPath& InMapPath);
 	
 #pragma endregion 
 	

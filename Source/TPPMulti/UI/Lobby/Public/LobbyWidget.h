@@ -46,6 +46,9 @@ protected:
 
 	virtual void NativeOnInitialized() override;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStartTravelToMatchWorld();
+
 #pragma region BindWidgets
 
 private:

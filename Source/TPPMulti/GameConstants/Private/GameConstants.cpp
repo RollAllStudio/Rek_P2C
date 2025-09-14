@@ -8,6 +8,11 @@ const UGameConstants* UGameConstants::Get()
 	return GetDefault<UGameConstants>();
 }
 
+FSoftObjectPath UGameConstants::GetMatchWorldPath()
+{
+	return Get()->MatchWorldPath;
+}
+
 TSubclassOf<UMainMenuWidget> UGameConstants::GetMainMenuWidgetClass()
 {
 	return Get()->MainMenuWidgetClass;

@@ -291,10 +291,14 @@ void UMultiplayerGameSubsystem::JoinSessionByIndex_Internal(const int32& InSessi
 	OnlineSessionsPtr->JoinSession(0, NAME_GameSession, SessionSearchResult);
 }
 
+void UMultiplayerGameSubsystem::TravelToMap_Internal(const FSoftObjectPath& InMapPath)
+{
+	GetWorld()->ServerTravel(CreateServerTravelLink(InMapPath.ToString()));
+}
+
 void UMultiplayerGameSubsystem::OnSessionCreated(FName InSessionName, bool InWasSuccessful)
 {
-	GetWorld()->ServerTravel(CreateServerTravelLink(
-		UMultiplayerGameConstants::GetLobbyWorldPath().ToString()));
+	TravelToMap_Internal(UMultiplayerGameConstants::GetLobbyWorldPath());
 }
 
 void UMultiplayerGameSubsystem::OnSessionSearchComplete(bool InWasSuccessful)
@@ -347,4 +351,9 @@ void UMultiplayerGameSubsystem::StopFindSessionsLoop(const UObject* WorldContext
 void UMultiplayerGameSubsystem::JoinSessionByIndex(const UObject* WorldContextObject, const int32& InSessionIndex)
 {
 	GetSubsystem(WorldContextObject)->JoinSessionByIndex_Internal(InSessionIndex);
+}
+
+void UMultiplayerGameSubsystem::TravelToMap(const UObject* WorldContextObject, const FSoftObjectPath& InMapPath)
+{
+	GetSubsystem(WorldContextObject)->TravelToMap_Internal(InMapPath);
 }
