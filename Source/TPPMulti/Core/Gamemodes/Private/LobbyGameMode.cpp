@@ -4,13 +4,13 @@
 #include "TPPMulti/Core/Gamemodes/Public/LobbyGameMode.h"
 #include "MultiplayerGame/Server/Public/ServerGameState.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerController.h"
-#include "MultiplayerGame/Server/Public/ServerPlayerState.h"
+#include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 #include "TPPMulti/UI/HUD/Public/LobbyHUD.h"
 
 ALobbyGameMode::ALobbyGameMode()
 {
 	HUDClass = ALobbyHUD::StaticClass();
 	PlayerControllerClass = AServerPlayerController::StaticClass();
-	PlayerStateClass = AServerPlayerState::StaticClass();
+	PlayerStateClass = ALobbyPlayerState::StaticClass();
 	GameStateClass = AServerGameState::StaticClass();
 }

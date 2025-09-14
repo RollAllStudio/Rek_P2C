@@ -7,12 +7,20 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
+#include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/UI/Lobby/Public/LobbyPlayerSlotWidget.h"
 
 void ULobbyWidget::OnClicked_StartMatchButton()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, "Start match button clicked");
+}
+
+void ULobbyWidget::OnClicked_ReadyButton()
+{
+	ALobbyPlayerState* LobbyPlayerState = GetOwningPlayer()->GetPlayerState<ALobbyPlayerState>();
+	if (IsValid(LobbyPlayerState))
+		LobbyPlayerState->SetIsReady(!LobbyPlayerState->GetIsReady());
 }
 
 void ULobbyWidget::OnClicked_CloseSessionButton()
@@ -23,6 +31,7 @@ void ULobbyWidget::OnClicked_CloseSessionButton()
 void ULobbyWidget::OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState)
 {
 
+	ALobbyPlayerState* LobbyPlayerState = Cast<ALobbyPlayerState>(InServerPlayerState);
 	ULobbyPlayerSlotWidget* SlotWidget;
 	if (!PlayerSlots.Contains(InPlayerUID))
 	{
@@ -37,14 +46,18 @@ void ULobbyWidget::OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayer
 				++InsertIndex;
 
 		PlayerSlotsBox->InsertChildAt(InsertIndex, SlotWidget);
-		
-		SlotWidget->SetPlayerState(InServerPlayerState);
+		SlotWidget->SetPlayerState(LobbyPlayerState);
 	}
 	else
 	{
 		SlotWidget = PlayerSlots[InPlayerUID];
-		SlotWidget->SetPlayerState(InServerPlayerState);
+		SlotWidget->SetPlayerState(LobbyPlayerState);
 	}
+
+	OnPlayerReadyChanged(true);
+	if (IsValid(LobbyPlayerState))
+		LobbyPlayerState->OnIsReadyChanged.AddUniqueDynamic(this, &ULobbyWidget::OnPlayerReadyChanged);
+	
 }
 
 void ULobbyWidget::OnServerPlayerLogout(const int32& InPlayerUID)
@@ -62,25 +75,65 @@ void ULobbyWidget::OnServerPlayerLogout(const int32& InPlayerUID)
 	}
 }
 
+void ULobbyWidget::OnPlayerReadyChanged(const bool InNewIsReady)
+{
+
+	TMap<int32, AServerPlayerState*> ServerPlayers = UMultiplayerGameSubsystem::GetServerPlayers(this);
+	for (const auto ServerPlayer : ServerPlayers)
+	{
+		ALobbyPlayerState* AsLobbyPlayerState = Cast<ALobbyPlayerState>(ServerPlayer.Value);
+		if (IsValid(AsLobbyPlayerState))
+		{
+			if (!AsLobbyPlayerState->GetIsReady())
+			{
+				StartMatchButton->SetIsEnabled(false);
+				return;
+			}
+		}
+	}
+
+	StartMatchButton->SetIsEnabled(true);
+	
+}
+
 void ULobbyWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 
-	StartMatchButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_StartMatchButton);
 	CloseSessionButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_CloseSessionButton);
 	SessionNameBox->SetText(UMultiplayerGameSubsystem::GetLocalJoinedSessionName(this));
 	StartMatchButton->SetIsEnabled(UMultiplayerGameSubsystem::IsHost(this));
 
+	if (UMultiplayerGameSubsystem::IsHost(this))
+	{
+		OnPlayerReadyChanged(true);
+		StartMatchButton->SetVisibility(ESlateVisibility::Visible);
+		StartMatchButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_StartMatchButton);
+	}
+	else
+	{
+		StartMatchButton->SetVisibility(ESlateVisibility::Collapsed);
+		StartMatchButton->SetIsEnabled(false);
+	}
+
+	ReadyButton->SetVisibility(ESlateVisibility::Visible);
+	ReadyButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_ReadyButton);
+	
 	TMap<int32, AServerPlayerState*> ServerPlayers = UMultiplayerGameSubsystem::GetServerPlayers(this);
 	for (auto ServerPlayer : ServerPlayers)
+	{
 		OnServerPlayerChanged(ServerPlayer.Key, ServerPlayer.Value);
+		ALobbyPlayerState* AsLobbyPlayerState = Cast<ALobbyPlayerState>(ServerPlayer.Value);
+		if (IsValid(AsLobbyPlayerState))
+			AsLobbyPlayerState->OnIsReadyChanged.AddUniqueDynamic(this, &ULobbyWidget::OnPlayerReadyChanged);
+	}
 
 	UMultiplayerGameSubsystem::GetSubsystem(this)->OnServerPlayerChanged.AddUniqueDynamic(
 		this, &ULobbyWidget::OnServerPlayerChanged);
 
 	UMultiplayerGameSubsystem::GetSubsystem(this)->OnServerPlayerLogout.AddUniqueDynamic(
 		this, &ULobbyWidget::OnServerPlayerLogout);
-
+	
 	GetOwningPlayer()->SetShowMouseCursor(true);
 	
 }

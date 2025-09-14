@@ -6,8 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "LobbyPlayerSlotWidget.generated.h"
 
+class UImage;
+class ALobbyPlayerState;
 class UTextBlock;
-class AServerPlayerState;
 /**
  * 
  */
@@ -17,50 +18,51 @@ class TPPMULTI_API ULobbyPlayerSlotWidget : public UUserWidget
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintGetter = GetPlayerState, BlueprintSetter = SetPlayerState)
-	AServerPlayerState* ServerPlayerState;
-
-	UFUNCTION()
-	void OnPlayerUIDChanged(const int32& InNewUID);
+	ALobbyPlayerState* ServerPlayerState;
 
 	UFUNCTION()
 	void OnPlayerNameChanged(const FString& InNewName);
+
+	UFUNCTION()
+	void OnPlayerReadyChanged(const bool InNewIsReady);
 	
 	void UnbindPlayerState();
-	void SetPlayerState_Internal(AServerPlayerState* InPlayerState);
+	void SetPlayerState_Internal(ALobbyPlayerState* InPlayerState);
 	
 public:
 
 	UFUNCTION(BlueprintGetter)
-	AServerPlayerState* GetPlayerState() const
+	ALobbyPlayerState* GetPlayerState() const
 	{
 		return ServerPlayerState;
 	}
 	
 	UFUNCTION(BlueprintSetter)
-	void SetPlayerState(AServerPlayerState* InPlayerState);
+	void SetPlayerState(ALobbyPlayerState* InPlayerState);
 
 #pragma region BindWidgets
 
 private:
-	
-	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetServerUIDTextBlock)
-	TObjectPtr<UTextBlock> ServerUIDTextBlock;
 
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetServerNameTextBlock)
 	TObjectPtr<UTextBlock> ServerNameTextBlock;
 
-public:
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetReadyImage)
+	TObjectPtr<UImage> ReadyImage;
 
-	UFUNCTION(BlueprintGetter)
-	UTextBlock* GetServerUIDTextBlock() const
-	{
-		return ServerUIDTextBlock;
-	}
+public:
+	
 
 	UFUNCTION(BlueprintGetter)
 	UTextBlock* GetServerNameTextBlock() const
 	{
 		return ServerNameTextBlock;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UImage* GetReadyImage() const
+	{
+		return ReadyImage;
 	}
 	
 #pragma endregion 

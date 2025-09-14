@@ -3,17 +3,18 @@
 
 #include "TPPMulti/UI/Lobby/Public/LobbyPlayerSlotWidget.h"
 
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
-#include "MultiplayerGame/Server/Public/ServerPlayerState.h"
-
-void ULobbyPlayerSlotWidget::OnPlayerUIDChanged(const int32& InNewUID)
-{
-	ServerUIDTextBlock->SetText(FText::FromString(FString::FromInt(InNewUID)));
-}
+#include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 
 void ULobbyPlayerSlotWidget::OnPlayerNameChanged(const FString& InNewName)
 {
 	ServerNameTextBlock->SetText(FText::FromString(InNewName));
+}
+
+void ULobbyPlayerSlotWidget::OnPlayerReadyChanged(const bool InNewIsReady)
+{
+	ReadyImage->SetVisibility(InNewIsReady ? ESlateVisibility::HitTestInvisible : ESlateVisibility::Hidden);
 }
 
 void ULobbyPlayerSlotWidget::UnbindPlayerState()
@@ -22,24 +23,24 @@ void ULobbyPlayerSlotWidget::UnbindPlayerState()
 	{
 		ServerPlayerState->OnServerUIDChanged.RemoveAll(this);
 		ServerPlayerState->OnServerNameChanged.RemoveAll(this);
+		ServerPlayerState->OnIsReadyChanged.RemoveAll(this);
 	}
 }
 
-void ULobbyPlayerSlotWidget::SetPlayerState_Internal(AServerPlayerState* InPlayerState)
+void ULobbyPlayerSlotWidget::SetPlayerState_Internal(ALobbyPlayerState* InPlayerState)
 {
 	UnbindPlayerState();
 	ServerPlayerState = InPlayerState;
 	if (IsValid(ServerPlayerState))
 	{
-		OnPlayerUIDChanged(InPlayerState->GetServerUID());
 		OnPlayerNameChanged(InPlayerState->GetServerPlayerName());
-
 		InPlayerState->OnServerNameChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnPlayerNameChanged);
-		InPlayerState->OnServerUIDChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnPlayerUIDChanged);
+		OnPlayerReadyChanged(InPlayerState->GetIsReady());
+		InPlayerState->OnIsReadyChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnPlayerReadyChanged);
 	}
 }
 
-void ULobbyPlayerSlotWidget::SetPlayerState(AServerPlayerState* InPlayerState)
+void ULobbyPlayerSlotWidget::SetPlayerState(ALobbyPlayerState* InPlayerState)
 {
 	if (InPlayerState != ServerPlayerState)
 		SetPlayerState_Internal(InPlayerState);

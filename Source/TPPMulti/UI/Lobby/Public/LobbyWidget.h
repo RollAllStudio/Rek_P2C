@@ -25,6 +25,9 @@ private:
 	void OnClicked_StartMatchButton();
 
 	UFUNCTION()
+	void OnClicked_ReadyButton();
+	
+	UFUNCTION()
 	void OnClicked_CloseSessionButton();
 
 	UFUNCTION()
@@ -32,6 +35,9 @@ private:
 
 	UFUNCTION()
 	void OnServerPlayerLogout(const int32& InPlayerUID);
+
+	UFUNCTION()
+	void OnPlayerReadyChanged(const bool InNewIsReady);
 
 	UPROPERTY()
 	TMap<int32, ULobbyPlayerSlotWidget*> PlayerSlots;
@@ -52,6 +58,9 @@ private:
 
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetStartMatchButton)
 	TObjectPtr<UButton> StartMatchButton;
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetReadyButton)
+	TObjectPtr<UButton> ReadyButton;
 
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetCloseSessionButton)
 	TObjectPtr<UButton> CloseSessionButton;
@@ -74,6 +83,12 @@ public:
 	UButton* GetStartMatchButton() const
 	{
 		return StartMatchButton;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UButton* GetReadyButton() const
+	{
+		return ReadyButton;
 	}
 
 	UFUNCTION(BlueprintGetter)
