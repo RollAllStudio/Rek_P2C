@@ -74,6 +74,11 @@ void AServerPlayerController::OnRep_PlayerState()
 		SetupServerPlayerState();
 }
 
+void AServerPlayerController::Client_LeaveSession_Implementation()
+{
+	UMultiplayerGameSubsystem::CloseSession(this);
+}
+
 AServerPlayerState* AServerPlayerController::GetServerPlayerState() const
 {
 	return Cast<AServerPlayerState>(PlayerState);

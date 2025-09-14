@@ -15,7 +15,7 @@ class MULTIPLAYERGAME_API AServerPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
-	UPROPERTY(ReplicatedUsing = OnRep_ServerUID)
+	UPROPERTY(ReplicatedUsing = OnRep_ServerUID, BlueprintGetter = GetServerUID)
 	int32 ServerUID = INDEX_NONE;
 
 	UFUNCTION()
@@ -30,11 +30,20 @@ public:
 	virtual void OnRep_PlayerState() override;
 
 	UFUNCTION(Client, Reliable)
+	void Client_LeaveSession();
+
+	UFUNCTION(Client, Reliable)
 	void Client_LoginServerPlayer();
 
 	UFUNCTION(Server, Reliable, WithValidation)
 	void Server_LoginServerPlayer(const int32& InServerPlayerUID);
 
+	UFUNCTION(BlueprintGetter)
+	int32 GetServerUID() const
+	{
+		return ServerUID;
+	}
+	
 	UFUNCTION(BlueprintPure)
 	AServerPlayerState* GetServerPlayerState() const;
 

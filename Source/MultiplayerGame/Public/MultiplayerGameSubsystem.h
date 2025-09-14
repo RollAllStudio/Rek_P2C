@@ -19,6 +19,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_SessionsFi
 	USessionsFindResult*, SessionsFindPtr);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMultiplayerGameSubsystem_ServerPlayerChanged_Signature,
 	const int32&, UID, AServerPlayerState*, PlayerState);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_Int32Event_Signature,
+	const int32&, Value);
 
 UCLASS()
 class MULTIPLAYERGAME_API UMultiplayerGameSubsystem : public UGameInstanceSubsystem
@@ -43,6 +45,7 @@ private:
 	int32 LoginNewServerPlayer_Internal();
 	int32 GetUIDForNewPlayer() const;
 	TMap<int32, AServerPlayerState*> GetServerPlayers_Internal() const;
+	void LogoutServerPlayer_Internal(const int32& InUID);
 
 	void SetServerPlayerState_Internal(const int32& InServerPlayerUID, AServerPlayerState* InPlayerState);
 	
@@ -50,6 +53,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMultiplayerGameSubsystem_ServerPlayerChanged_Signature OnServerPlayerChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_Int32Event_Signature OnServerPlayerLogout;
 
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
 	static void LoginServerPlayerAtUID(const UObject* WorldContextObject, const int32& InUID);
@@ -63,6 +69,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
 	static TMap<int32, AServerPlayerState*> GetServerPlayers(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static void LogoutServerPlayer(const UObject* WorldContextObject, const int32& InUID);
 	
 #pragma endregion 
 

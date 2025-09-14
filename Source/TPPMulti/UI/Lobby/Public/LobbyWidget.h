@@ -30,6 +30,9 @@ private:
 	UFUNCTION()
 	void OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState);
 
+	UFUNCTION()
+	void OnServerPlayerLogout(const int32& InPlayerUID);
+
 	UPROPERTY()
 	TMap<int32, ULobbyPlayerSlotWidget*> PlayerSlots;
 

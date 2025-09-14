@@ -61,6 +61,12 @@ TMap<int32, AServerPlayerState*> UMultiplayerGameSubsystem::GetServerPlayers_Int
 	return ServerPlayers;
 }
 
+void UMultiplayerGameSubsystem::LogoutServerPlayer_Internal(const int32& InUID)
+{
+	ServerPlayers.Remove(InUID);
+	OnServerPlayerLogout.Broadcast(InUID);
+}
+
 void UMultiplayerGameSubsystem::SetServerPlayerState_Internal(const int32& InServerPlayerUID,
                                                               AServerPlayerState* InPlayerState)
 {
@@ -91,6 +97,11 @@ void UMultiplayerGameSubsystem::SetServerPlayerState(const UObject* WorldContext
 TMap<int32, AServerPlayerState*> UMultiplayerGameSubsystem::GetServerPlayers(const UObject* WorldContextObject)
 {
 	return GetSubsystem(WorldContextObject)->GetServerPlayers_Internal();
+}
+
+void UMultiplayerGameSubsystem::LogoutServerPlayer(const UObject* WorldContextObject, const int32& InUID)
+{
+	GetSubsystem(WorldContextObject)->LogoutServerPlayer_Internal(InUID);
 }
 
 #define TRY_CHANGE_LOCAL_TEXT(TextVar, NewText, ChangeDelegate) \

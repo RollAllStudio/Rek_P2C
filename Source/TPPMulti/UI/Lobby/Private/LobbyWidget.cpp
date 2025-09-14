@@ -23,20 +23,42 @@ void ULobbyWidget::OnClicked_CloseSessionButton()
 void ULobbyWidget::OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState)
 {
 
-	ULobbyPlayerSlotWidget* SlotWidget = nullptr;
+	ULobbyPlayerSlotWidget* SlotWidget;
 	if (!PlayerSlots.Contains(InPlayerUID))
 	{
 		SlotWidget = CreateWidget<ULobbyPlayerSlotWidget>(GetOwningPlayer(),
 			UGameConstants::GetLobbyPlayerSlotWidgetClass());
 
 		PlayerSlots.Add(InPlayerUID, SlotWidget);
-		PlayerSlotsBox.Get()->AddChild(SlotWidget);
+
+		int32 InsertIndex = 0;
+		for (const auto PlayerSlot : PlayerSlots)
+			if (PlayerSlot.Key < InPlayerUID)
+				++InsertIndex;
+
+		PlayerSlotsBox->InsertChildAt(InsertIndex, SlotWidget);
+		
 		SlotWidget->SetPlayerState(InServerPlayerState);
 	}
 	else
 	{
 		SlotWidget = PlayerSlots[InPlayerUID];
 		SlotWidget->SetPlayerState(InServerPlayerState);
+	}
+}
+
+void ULobbyWidget::OnServerPlayerLogout(const int32& InPlayerUID)
+{
+	if (PlayerSlots.Contains(InPlayerUID))
+	{
+		ULobbyPlayerSlotWidget* SlotWidget =
+			PlayerSlots[InPlayerUID];
+
+		if (IsValid(SlotWidget))
+		{
+			SlotWidget->RemoveFromParent();
+			PlayerSlots.Remove(InPlayerUID);
+		}
 	}
 }
 
@@ -55,6 +77,9 @@ void ULobbyWidget::NativeOnInitialized()
 
 	UMultiplayerGameSubsystem::GetSubsystem(this)->OnServerPlayerChanged.AddUniqueDynamic(
 		this, &ULobbyWidget::OnServerPlayerChanged);
+
+	UMultiplayerGameSubsystem::GetSubsystem(this)->OnServerPlayerLogout.AddUniqueDynamic(
+		this, &ULobbyWidget::OnServerPlayerLogout);
 
 	GetOwningPlayer()->SetShowMouseCursor(true);
 	
