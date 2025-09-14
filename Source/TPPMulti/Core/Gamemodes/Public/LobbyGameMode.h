@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/GameModeBase.h"
+#include "MultiplayerGame/Server/Public/ServerGameMode.h"
 #include "LobbyGameMode.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TPPMULTI_API ALobbyGameMode : public AGameModeBase
+class TPPMULTI_API ALobbyGameMode : public AServerGameMode
 {
 	GENERATED_BODY()
 

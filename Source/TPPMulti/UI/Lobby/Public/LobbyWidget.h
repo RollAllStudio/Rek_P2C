@@ -6,6 +6,8 @@
 #include "Blueprint/UserWidget.h"
 #include "LobbyWidget.generated.h"
 
+class ULobbyPlayerSlotWidget;
+class AServerPlayerState;
 class UButton;
 class UVerticalBox;
 class UTextBlock;
@@ -24,6 +26,12 @@ private:
 
 	UFUNCTION()
 	void OnClicked_CloseSessionButton();
+
+	UFUNCTION()
+	void OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState);
+
+	UPROPERTY()
+	TMap<int32, ULobbyPlayerSlotWidget*> PlayerSlots;
 
 protected:
 

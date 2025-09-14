@@ -9,6 +9,7 @@
 
 #define SESSION_SETTING_NAME_SESSION_NAME FName("SessionName")
 
+class AServerPlayerState;
 class USessionsFindResult;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMultiplayerGameSubsystem_EmptyEvent_Singature);
@@ -16,6 +17,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_TextEvent_
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_BoolEvent_Signature, const bool, NewValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMultiplayerGameSubsystem_SessionsFindComplete_Signature,
 	USessionsFindResult*, SessionsFindPtr);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMultiplayerGameSubsystem_ServerPlayerChanged_Signature,
+	const int32&, UID, AServerPlayerState*, PlayerState);
 
 UCLASS()
 class MULTIPLAYERGAME_API UMultiplayerGameSubsystem : public UGameInstanceSubsystem
@@ -28,6 +31,40 @@ public:
 	static UMultiplayerGameSubsystem* GetSubsystem(const UObject* WorldContextObject);
 
 	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
+
+#pragma region ServerPlayers
+
+private:
+
+	UPROPERTY()
+	TMap<int32, AServerPlayerState*> ServerPlayers;
+
+	void LoginServerPlayerAtUID_Internal(const int32& InUID);
+	int32 LoginNewServerPlayer_Internal();
+	int32 GetUIDForNewPlayer() const;
+	TMap<int32, AServerPlayerState*> GetServerPlayers_Internal() const;
+
+	void SetServerPlayerState_Internal(const int32& InServerPlayerUID, AServerPlayerState* InPlayerState);
+	
+public:
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_ServerPlayerChanged_Signature OnServerPlayerChanged;
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static void LoginServerPlayerAtUID(const UObject* WorldContextObject, const int32& InUID);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static int32 LoginNewPlayer(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static void SetServerPlayerState(const UObject* WorldContextObject, const int32& InServerPlayerUID,
+		AServerPlayerState* InPlayerState);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static TMap<int32, AServerPlayerState*> GetServerPlayers(const UObject* WorldContextObject);
+	
+#pragma endregion 
 
 #pragma region LocalData
 
@@ -46,11 +83,17 @@ private:
 	FText LocalPlayerName;
 
 	UPROPERTY()
+	int32 LocalPlayerUID = INDEX_NONE;
+
+	UPROPERTY()
 	bool bCanHostSession;
 
 	void SetLocalSessionName_Internal(const FText& InNewSessionName);
 	void SetLocalPlayerName_Internal(const FText& InNewPlayerName);
+	void SetLocalPlayerUID_Internal(const int32& InNewUID);
+	int32 GetLocalPlayerUID_Internal() const;
 	void OnHostConditionsChanged();
+	void ClearLocalServerData();
 
 public:
 
@@ -63,6 +106,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static void SetLocalPlayerName(const UObject* WorldContextObject, const FText& InNewName);
 
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static void SetLocalPlayerUID(const UObject* WorldContextObject, const int32& InNewUID);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static int32 GetLocalPlayerUID(const UObject* WorldContextObject);
+	
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static FText GetLocalPlayerName(const UObject* WorldContextObject);
 

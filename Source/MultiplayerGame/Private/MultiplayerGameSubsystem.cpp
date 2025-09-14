@@ -30,6 +30,69 @@ void UMultiplayerGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 		FOnJoinSessionCompleteDelegate::CreateUObject(this, &UMultiplayerGameSubsystem::OnJoinSessionComplete));
 }
 
+void UMultiplayerGameSubsystem::LoginServerPlayerAtUID_Internal(const int32& InUID)
+{
+	if (!ServerPlayers.Contains(InUID))
+		ServerPlayers.Add(InUID, nullptr);
+}
+
+int32 UMultiplayerGameSubsystem::LoginNewServerPlayer_Internal()
+{
+	const int32 NewUID = GetUIDForNewPlayer();
+	LoginServerPlayerAtUID_Internal(NewUID);
+	return NewUID;
+}
+
+int32 UMultiplayerGameSubsystem::GetUIDForNewPlayer() const
+{
+	int32 NewUID = 0;
+	for (const auto ServerPlayer : ServerPlayers)
+	{
+		if (NewUID < ServerPlayer.Key)
+			NewUID = ServerPlayer.Key;
+	}
+
+	NewUID++;
+	return NewUID;
+}
+
+TMap<int32, AServerPlayerState*> UMultiplayerGameSubsystem::GetServerPlayers_Internal() const
+{
+	return ServerPlayers;
+}
+
+void UMultiplayerGameSubsystem::SetServerPlayerState_Internal(const int32& InServerPlayerUID,
+                                                              AServerPlayerState* InPlayerState)
+{
+	if (ServerPlayers.Contains(InServerPlayerUID))
+		if (ServerPlayers[InServerPlayerUID] == InPlayerState)
+			return;
+
+	ServerPlayers.Add(InServerPlayerUID, InPlayerState);
+	OnServerPlayerChanged.Broadcast(InServerPlayerUID, InPlayerState);
+}
+
+void UMultiplayerGameSubsystem::LoginServerPlayerAtUID(const UObject* WorldContextObject, const int32& InUID)
+{
+	GetSubsystem(WorldContextObject)->LoginServerPlayerAtUID_Internal(InUID);
+}
+
+int32 UMultiplayerGameSubsystem::LoginNewPlayer(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->LoginNewServerPlayer_Internal();
+}
+
+void UMultiplayerGameSubsystem::SetServerPlayerState(const UObject* WorldContextObject, const int32& InServerPlayerUID,
+	AServerPlayerState* InPlayerState)
+{
+	GetSubsystem(WorldContextObject)->SetServerPlayerState_Internal(InServerPlayerUID, InPlayerState);
+}
+
+TMap<int32, AServerPlayerState*> UMultiplayerGameSubsystem::GetServerPlayers(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->GetServerPlayers_Internal();
+}
+
 #define TRY_CHANGE_LOCAL_TEXT(TextVar, NewText, ChangeDelegate) \
 	if (! TextVar .EqualTo( NewText )) { TextVar = NewText ; ChangeDelegate .Broadcast( TextVar );}
 
@@ -45,6 +108,16 @@ void UMultiplayerGameSubsystem::SetLocalPlayerName_Internal(const FText& InNewPl
 	OnHostConditionsChanged();
 }
 
+void UMultiplayerGameSubsystem::SetLocalPlayerUID_Internal(const int32& InNewUID)
+{
+	LocalPlayerUID = InNewUID;
+}
+
+int32 UMultiplayerGameSubsystem::GetLocalPlayerUID_Internal() const
+{
+	return LocalPlayerUID;
+}
+
 void UMultiplayerGameSubsystem::OnHostConditionsChanged()
 {
 	const bool NewVar = !LocalHostedSessionName.IsEmpty() && !LocalPlayerName.IsEmpty();
@@ -53,6 +126,12 @@ void UMultiplayerGameSubsystem::OnHostConditionsChanged()
 		bCanHostSession = NewVar;
 		OnCanHostSessionChanged.Broadcast(bCanHostSession);
 	}
+}
+
+void UMultiplayerGameSubsystem::ClearLocalServerData()
+{
+	LocalPlayerUID = INDEX_NONE;
+	ServerPlayers.Empty();
 }
 
 void UMultiplayerGameSubsystem::SetLocalHostedSessionName(const FText& InNewSessionName, const UObject* WorldContextObject)
@@ -68,6 +147,16 @@ FText UMultiplayerGameSubsystem::GetLocalHostedSessionName(const UObject* WorldC
 void UMultiplayerGameSubsystem::SetLocalPlayerName(const UObject* WorldContextObject, const FText& InNewName)
 {
 	GetSubsystem(WorldContextObject)->SetLocalPlayerName_Internal(InNewName);
+}
+
+void UMultiplayerGameSubsystem::SetLocalPlayerUID(const UObject* WorldContextObject, const int32& InNewUID)
+{
+	GetSubsystem(WorldContextObject)->SetLocalPlayerUID_Internal(InNewUID);
+}
+
+int32 UMultiplayerGameSubsystem::GetLocalPlayerUID(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->GetLocalPlayerUID_Internal();
 }
 
 FText UMultiplayerGameSubsystem::GetLocalPlayerName(const UObject* WorldContextObject)
@@ -146,6 +235,7 @@ void UMultiplayerGameSubsystem::CloseSession_Internal()
 		}
 
 		OnlineSessionsPtr->DestroySession(NAME_GameSession);
+		ClearLocalServerData();
 		
 	}
 }

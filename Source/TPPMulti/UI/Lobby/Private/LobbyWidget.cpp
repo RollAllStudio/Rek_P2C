@@ -6,6 +6,9 @@
 #include "MultiplayerGameSubsystem.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
+#include "TPPMulti/GameConstants/Public/GameConstants.h"
+#include "TPPMulti/UI/Lobby/Public/LobbyPlayerSlotWidget.h"
 
 void ULobbyWidget::OnClicked_StartMatchButton()
 {
@@ -17,6 +20,26 @@ void ULobbyWidget::OnClicked_CloseSessionButton()
 	UMultiplayerGameSubsystem::CloseSession(this);
 }
 
+void ULobbyWidget::OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState)
+{
+
+	ULobbyPlayerSlotWidget* SlotWidget = nullptr;
+	if (!PlayerSlots.Contains(InPlayerUID))
+	{
+		SlotWidget = CreateWidget<ULobbyPlayerSlotWidget>(GetOwningPlayer(),
+			UGameConstants::GetLobbyPlayerSlotWidgetClass());
+
+		PlayerSlots.Add(InPlayerUID, SlotWidget);
+		PlayerSlotsBox.Get()->AddChild(SlotWidget);
+		SlotWidget->SetPlayerState(InServerPlayerState);
+	}
+	else
+	{
+		SlotWidget = PlayerSlots[InPlayerUID];
+		SlotWidget->SetPlayerState(InServerPlayerState);
+	}
+}
+
 void ULobbyWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -25,6 +48,13 @@ void ULobbyWidget::NativeOnInitialized()
 	CloseSessionButton->OnClicked.AddUniqueDynamic(this, &ULobbyWidget::OnClicked_CloseSessionButton);
 	SessionNameBox->SetText(UMultiplayerGameSubsystem::GetLocalJoinedSessionName(this));
 	StartMatchButton->SetIsEnabled(UMultiplayerGameSubsystem::IsHost(this));
+
+	TMap<int32, AServerPlayerState*> ServerPlayers = UMultiplayerGameSubsystem::GetServerPlayers(this);
+	for (auto ServerPlayer : ServerPlayers)
+		OnServerPlayerChanged(ServerPlayer.Key, ServerPlayer.Value);
+
+	UMultiplayerGameSubsystem::GetSubsystem(this)->OnServerPlayerChanged.AddUniqueDynamic(
+		this, &ULobbyWidget::OnServerPlayerChanged);
 
 	GetOwningPlayer()->SetShowMouseCursor(true);
 	

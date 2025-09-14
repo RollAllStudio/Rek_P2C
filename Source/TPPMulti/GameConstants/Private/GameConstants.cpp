@@ -22,3 +22,8 @@ TSubclassOf<USessionJoinSlotWidget> UGameConstants::GetSessionJoinWidgetSlotClas
 {
 	return Get()->SessionJoinWidgetSlotClass;
 }
+
+TSubclassOf<ULobbyPlayerSlotWidget> UGameConstants::GetLobbyPlayerSlotWidgetClass()
+{
+	return Get()->LobbyPlayerWidgetSlotClass;
+}
