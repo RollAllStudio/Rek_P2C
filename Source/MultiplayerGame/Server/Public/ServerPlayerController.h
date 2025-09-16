@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "ServerPlayerData.h"
 #include "GameFramework/PlayerController.h"
 #include "ServerPlayerController.generated.h"
 
+class UServerPlayerData;
 class AServerPlayerState;
 /**
  * 
@@ -18,6 +20,8 @@ class MULTIPLAYERGAME_API AServerPlayerController : public APlayerController
 	UPROPERTY(ReplicatedUsing = OnRep_ServerUID, BlueprintGetter = GetServerUID)
 	int32 ServerUID = INDEX_NONE;
 
+	bool bServerPawnInitialized = false;
+
 	UFUNCTION()
 	void OnRep_ServerUID();
 	void SetServerUID_Internal(const int32& InNewUID);
@@ -28,6 +32,7 @@ public:
 
 	virtual void InitPlayerState() override;
 	virtual void OnRep_PlayerState() override;
+	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
 	void Client_LeaveSession();
@@ -48,5 +53,13 @@ public:
 	AServerPlayerState* GetServerPlayerState() const;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+protected:
+
+	virtual void SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData);
+
+private:
+
+	void SetupServerPawn(APawn* InPawn, UServerPlayerData* InServerPlayerData);
 	
 };

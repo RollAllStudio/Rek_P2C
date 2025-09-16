@@ -6,6 +6,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "MultiplayerGameConstants.generated.h"
 
+class UServerPlayerData;
 /**
  * 
  */
@@ -36,6 +37,9 @@ private:
 	UPROPERTY(EditAnywhere, Config, DisplayName = "Session destroyed return World", meta=(AllowedClasses="/Script/Engine.World"))
 	FSoftObjectPath SessionDestroyedReturnWorldPath;
 
+	UPROPERTY(EditAnywhere, Config)
+	TSubclassOf<UServerPlayerData> ServerPlayerDataClass;	
+
 public:
 	
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
@@ -55,5 +59,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static FSoftObjectPath GetSessionDestroyedReturnWorldPath();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
+	static TSubclassOf<UServerPlayerData> GetServerPlayerDataClass();
 	
 };

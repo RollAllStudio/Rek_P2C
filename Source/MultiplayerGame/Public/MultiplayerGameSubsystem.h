@@ -9,6 +9,7 @@
 
 #define SESSION_SETTING_NAME_SESSION_NAME FName("SessionName")
 
+class UServerPlayerData;
 class AServerPlayerState;
 class USessionsFindResult;
 
@@ -38,8 +39,13 @@ public:
 
 private:
 
+	bool bCanLogout = true;
+
 	UPROPERTY()
 	TMap<int32, AServerPlayerState*> ServerPlayers;
+
+	UPROPERTY()
+	TMap<int32, UServerPlayerData*> ServerPlayersData;
 
 	void LoginServerPlayerAtUID_Internal(const int32& InUID);
 	int32 LoginNewServerPlayer_Internal();
@@ -48,6 +54,9 @@ private:
 	void LogoutServerPlayer_Internal(const int32& InUID);
 
 	void SetServerPlayerState_Internal(const int32& InServerPlayerUID, AServerPlayerState* InPlayerState);
+	void InitServerPlayerData(const int32& InServerPlayerUID);
+	UServerPlayerData* GetServerPlayerData_Internal(const int32& InUID);
+	AServerPlayerState* GetServerPlayerState_Internal(const int32& InUID);
 	
 public:
 
@@ -72,6 +81,15 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
 	static void LogoutServerPlayer(const UObject* WorldContextObject, const int32& InUID);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static UServerPlayerData* GetServerPlayerData(const UObject* WorldContextObject, const int32& InUID);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static AServerPlayerState* GetServerPlayerState(const UObject* WorldContextObject, const int32& InUID);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|ServerPlayers", meta=(WorldContext = WorldContextObject))
+	static void SetCanLogout(const UObject* WorldContextObject, const bool InCanLogout);	
 	
 #pragma endregion 
 
@@ -141,6 +159,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMultiplayerGameSubsystem_BoolEvent_Signature OnCanHostSessionChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_Int32Event_Signature OnLocalPlayerUIDChanged;
 	
 #pragma endregion
 

@@ -24,6 +24,9 @@ class TPPMULTI_API ULobbyPlayerSlotWidget : public UUserWidget
 	void OnPlayerNameChanged(const FString& InNewName);
 
 	UFUNCTION()
+	void OnCharacterRowChanged(const FDataTableRowHandle& InCharacterRow);
+
+	UFUNCTION()
 	void OnPlayerReadyChanged(const bool InNewIsReady);
 	
 	void UnbindPlayerState();
@@ -47,6 +50,9 @@ private:
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetServerNameTextBlock)
 	TObjectPtr<UTextBlock> ServerNameTextBlock;
 
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetCharacterNameTextBlock)
+	TObjectPtr<UTextBlock> CharacterNameTextBlock;
+
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetReadyImage)
 	TObjectPtr<UImage> ReadyImage;
 
@@ -63,6 +69,12 @@ public:
 	UImage* GetReadyImage() const
 	{
 		return ReadyImage;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UTextBlock* GetCharacterNameTextBlock() const
+	{
+		return CharacterNameTextBlock;
 	}
 	
 #pragma endregion 

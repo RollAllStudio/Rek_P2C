@@ -37,3 +37,8 @@ FSoftObjectPath UMultiplayerGameConstants::GetSessionDestroyedReturnWorldPath()
 {
 	return Get()->SessionDestroyedReturnWorldPath;
 }
+
+TSubclassOf<UServerPlayerData> UMultiplayerGameConstants::GetServerPlayerDataClass()
+{
+	return Get()->ServerPlayerDataClass;
+}

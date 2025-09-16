@@ -8,7 +8,8 @@
 
 void AServerPlayerController::Client_LoginServerPlayer_Implementation()
 {
-	Server_LoginServerPlayer(UMultiplayerGameSubsystem::GetLocalPlayerUID(this));	
+	const int32 LocalPlayerUID = UMultiplayerGameSubsystem::GetLocalPlayerUID(this);
+	Server_LoginServerPlayer(LocalPlayerUID);	
 }
 
 void AServerPlayerController::Server_LoginServerPlayer_Implementation(const int32& InServerPlayerUID)
@@ -40,13 +41,14 @@ void AServerPlayerController::SetServerUID_Internal(const int32& InNewUID)
 	if (IsLocalController())
 		UMultiplayerGameSubsystem::SetLocalPlayerUID(this, InNewUID);
 
+	if (IsValid(GetPawn()))
+		SetupServerPawn(GetPawn(), UMultiplayerGameSubsystem::GetServerPlayerData(this, InNewUID));
+	
 	SetupServerPlayerState();
 }
 
 void AServerPlayerController::SetupServerPlayerState() const
 {
-
-	int32 LocalUID = UMultiplayerGameSubsystem::GetLocalPlayerUID(this);
 	FString bHasPlayerState = IsValid(GetServerPlayerState()) ?
 		"true" : "false";
 	
@@ -74,6 +76,13 @@ void AServerPlayerController::OnRep_PlayerState()
 		SetupServerPlayerState();
 }
 
+void AServerPlayerController::OnPossess(APawn* InPawn)
+{
+	Super::OnPossess(InPawn);
+	if (ServerUID != INDEX_NONE)
+		SetupServerPawn(InPawn, UMultiplayerGameSubsystem::GetServerPlayerData(this, ServerUID));
+}
+
 void AServerPlayerController::Client_LeaveSession_Implementation()
 {
 	UMultiplayerGameSubsystem::CloseSession(this);
@@ -88,4 +97,14 @@ void AServerPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimePropert
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 	DOREPLIFETIME_CONDITION(AServerPlayerController, ServerUID, COND_OwnerOnly)
+}
+
+void AServerPlayerController::SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData)
+{
+}
+
+void AServerPlayerController::SetupServerPawn(APawn* InPawn, UServerPlayerData* InServerPlayerData)
+{
+	if (!bServerPawnInitialized)
+		SetupServerPawn_Internal(InPawn, InServerPlayerData);
 }

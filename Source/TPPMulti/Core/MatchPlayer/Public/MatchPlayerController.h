@@ -18,6 +18,7 @@ class TPPMULTI_API AMatchPlayerController : public AServerPlayerController
 protected:
 	
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData) override;
 
 private:
 	

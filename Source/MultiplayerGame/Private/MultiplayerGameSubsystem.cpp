@@ -8,6 +8,7 @@
 #include "SessionsFindResult.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Kismet/GameplayStatics.h"
+#include "MultiplayerGame/Server/Public/ServerPlayerData.h"
 
 UMultiplayerGameSubsystem* UMultiplayerGameSubsystem::GetSubsystem(const UObject* WorldContextObject)
 {
@@ -33,7 +34,10 @@ void UMultiplayerGameSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 void UMultiplayerGameSubsystem::LoginServerPlayerAtUID_Internal(const int32& InUID)
 {
 	if (!ServerPlayers.Contains(InUID))
+	{
 		ServerPlayers.Add(InUID, nullptr);
+		InitServerPlayerData(InUID);
+	}
 }
 
 int32 UMultiplayerGameSubsystem::LoginNewServerPlayer_Internal()
@@ -63,8 +67,12 @@ TMap<int32, AServerPlayerState*> UMultiplayerGameSubsystem::GetServerPlayers_Int
 
 void UMultiplayerGameSubsystem::LogoutServerPlayer_Internal(const int32& InUID)
 {
-	ServerPlayers.Remove(InUID);
-	OnServerPlayerLogout.Broadcast(InUID);
+	if (bCanLogout)
+	{
+		ServerPlayers.Remove(InUID);
+		ServerPlayersData.Remove(InUID);
+		OnServerPlayerLogout.Broadcast(InUID);
+	}
 }
 
 void UMultiplayerGameSubsystem::SetServerPlayerState_Internal(const int32& InServerPlayerUID,
@@ -76,6 +84,26 @@ void UMultiplayerGameSubsystem::SetServerPlayerState_Internal(const int32& InSer
 
 	ServerPlayers.Add(InServerPlayerUID, InPlayerState);
 	OnServerPlayerChanged.Broadcast(InServerPlayerUID, InPlayerState);
+}
+
+void UMultiplayerGameSubsystem::InitServerPlayerData(const int32& InServerPlayerUID)
+{
+	UServerPlayerData* NewData = NewObject<UServerPlayerData>(
+		this, UMultiplayerGameConstants::GetServerPlayerDataClass());
+	ServerPlayersData.Add(InServerPlayerUID, NewData);
+	NewData->InitData(this, InServerPlayerUID);
+}
+
+UServerPlayerData* UMultiplayerGameSubsystem::GetServerPlayerData_Internal(const int32& InUID)
+{
+	if (ServerPlayersData.Contains(InUID))
+		return ServerPlayersData[InUID];
+	return nullptr;
+}
+
+AServerPlayerState* UMultiplayerGameSubsystem::GetServerPlayerState_Internal(const int32& InUID)
+{
+	return ServerPlayers[InUID];
 }
 
 void UMultiplayerGameSubsystem::LoginServerPlayerAtUID(const UObject* WorldContextObject, const int32& InUID)
@@ -104,6 +132,22 @@ void UMultiplayerGameSubsystem::LogoutServerPlayer(const UObject* WorldContextOb
 	GetSubsystem(WorldContextObject)->LogoutServerPlayer_Internal(InUID);
 }
 
+UServerPlayerData* UMultiplayerGameSubsystem::GetServerPlayerData(const UObject* WorldContextObject, const int32& InUID)
+{
+	return GetSubsystem(WorldContextObject)->GetServerPlayerData_Internal(InUID);
+}
+
+AServerPlayerState* UMultiplayerGameSubsystem::GetServerPlayerState(const UObject* WorldContextObject,
+	const int32& InUID)
+{
+	return GetSubsystem(WorldContextObject)->GetServerPlayerState_Internal(InUID);
+}
+
+void UMultiplayerGameSubsystem::SetCanLogout(const UObject* WorldContextObject, const bool InCanLogout)
+{
+	GetSubsystem(WorldContextObject)->bCanLogout = InCanLogout;
+}
+
 #define TRY_CHANGE_LOCAL_TEXT(TextVar, NewText, ChangeDelegate) \
 	if (! TextVar .EqualTo( NewText )) { TextVar = NewText ; ChangeDelegate .Broadcast( TextVar );}
 
@@ -122,6 +166,7 @@ void UMultiplayerGameSubsystem::SetLocalPlayerName_Internal(const FText& InNewPl
 void UMultiplayerGameSubsystem::SetLocalPlayerUID_Internal(const int32& InNewUID)
 {
 	LocalPlayerUID = InNewUID;
+	OnLocalPlayerUIDChanged.Broadcast(InNewUID);
 }
 
 int32 UMultiplayerGameSubsystem::GetLocalPlayerUID_Internal() const
@@ -143,6 +188,7 @@ void UMultiplayerGameSubsystem::ClearLocalServerData()
 {
 	LocalPlayerUID = INDEX_NONE;
 	ServerPlayers.Empty();
+	ServerPlayersData.Empty();
 }
 
 void UMultiplayerGameSubsystem::SetLocalHostedSessionName(const FText& InNewSessionName, const UObject* WorldContextObject)
@@ -355,5 +401,6 @@ void UMultiplayerGameSubsystem::JoinSessionByIndex(const UObject* WorldContextOb
 
 void UMultiplayerGameSubsystem::TravelToMap(const UObject* WorldContextObject, const FSoftObjectPath& InMapPath)
 {
+	SetCanLogout(WorldContextObject, false);
 	GetSubsystem(WorldContextObject)->TravelToMap_Internal(InMapPath);
 }

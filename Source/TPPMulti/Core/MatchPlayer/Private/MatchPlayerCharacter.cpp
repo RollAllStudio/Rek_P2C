@@ -25,18 +25,23 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 void AMatchPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	UGameConstants::GetCharacterMeshRef().ToSoftObjectPath().LoadAsync(
-		FLoadSoftObjectPathAsyncDelegate::CreateUObject(this, &AMatchPlayerCharacter::OnCharacterMeshLoaded));
-
 	CameraBoomComponent->TargetArmLength = UGameConstants::GetCameraBoomLen();
 	CameraBoomComponent->ProbeChannel = UGameConstants::GetCameraBoomProbeChannel();
 	CameraBoomComponent->SetRelativeTransform(UGameConstants::GetCameraBoomOffset());
-	
 }
 
 void AMatchPlayerCharacter::OnCharacterMeshLoaded(const FSoftObjectPath& InAssetPath, UObject* InAsset)
 {
 	GetMesh()->SetSkeletalMeshAsset(Cast<USkeletalMesh>(InAsset));
-	GetMesh()->SetRelativeTransform(UGameConstants::GetCharacterTransformOffset());
-	GetMesh()->SetAnimInstanceClass(UGameConstants::GetCharacterAnimInstance());
+	GetMesh()->SetRelativeTransform(CharacterData.MeshOffset);
+	GetMesh()->SetAnimInstanceClass(CharacterData.AnimInstance);
+}
+
+void AMatchPlayerCharacter::LoadCharacterData(const FDataTableRowHandle& InDataRow)
+{
+	if (UCharactersDataBase::ReadCharacterData(InDataRow, CharacterData))
+	{
+		CharacterData.Mesh.ToSoftObjectPath().LoadAsync(
+			FLoadSoftObjectPathAsyncDelegate::CreateUObject(this, &AMatchPlayerCharacter::OnCharacterMeshLoaded));
+	}
 }

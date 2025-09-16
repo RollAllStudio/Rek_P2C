@@ -6,31 +6,42 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/InputTags/Public/InputTags.h"
+#include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
 void AMatchPlayerController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 
-	UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem
-		= ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
+	if (IsLocalController())
+	{
+		UEnhancedInputLocalPlayerSubsystem* EnhancedInputSubsystem
+	= ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 
-	EnhancedInputSubsystem->ClearAllMappings();
-	EnhancedInputSubsystem->AddMappingContext(UGameConstants::LoadDefaultInputMappingContext(), 0);
+		EnhancedInputSubsystem->ClearAllMappings();
+		EnhancedInputSubsystem->AddMappingContext(UGameConstants::LoadDefaultInputMappingContext(), 0);
 
-	UEnhancedInputComponent* LocalInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
+		UEnhancedInputComponent* LocalInputComponent = Cast<UEnhancedInputComponent>(InputComponent);
 
 #define BIND_ACTION(ActionRefVar, ActionTag, InputComp, EventType, Function) \
 UInputAction* ActionRefVar; if (UGameConstants::LoadInputMappingByTag( InputTags:: ActionTag , ActionRefVar)) \
 InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatchPlayerController:: Function );
 
-	BIND_ACTION(MoveActionConfig, Move, LocalInputComponent, Triggered, InputAction_Move_Triggered)
-	BIND_ACTION(CameraActionConfig, Camera, LocalInputComponent, Triggered, InputAction_Camera_Triggered)
-	BIND_ACTION(JumpActionConfig, Jump, LocalInputComponent, Triggered, InputAction_Jump_Triggered)
+		BIND_ACTION(MoveActionConfig, Move, LocalInputComponent, Triggered, InputAction_Move_Triggered)
+		BIND_ACTION(CameraActionConfig, Camera, LocalInputComponent, Triggered, InputAction_Camera_Triggered)
+		BIND_ACTION(JumpActionConfig, Jump, LocalInputComponent, Triggered, InputAction_Jump_Triggered)
 	
-#undef BIND_ACTION
-	
+	#undef BIND_ACTION
+	}
+}
+
+void AMatchPlayerController::SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData)
+{
+	Super::SetupServerPawn_Internal(InPawn, InServerPlayerData);
+	AMatchPlayerCharacter* MatchPlayerCharacter = Cast<AMatchPlayerCharacter>(InPawn);
+	MatchPlayerCharacter->LoadCharacterData(Cast<UMyServerPlayerData>(InServerPlayerData)->GetCharacterRow());
 }
 
 void AMatchPlayerController::InputAction_Move_Triggered(const FInputActionValue& InInputValue)

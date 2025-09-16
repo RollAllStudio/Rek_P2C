@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "MatchPlayerCharacter.generated.h"
 
 class UCameraComponent;
@@ -14,6 +15,8 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+#pragma region Core
+	
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	USpringArmComponent* CameraBoomComponent;
 
@@ -28,9 +31,29 @@ protected:
 	
 	virtual void BeginPlay() override;
 
+#pragma endregion 
+	
+#pragma region CharacterData
+
 private:
 
+	UPROPERTY(BlueprintGetter = GetCharacterData)
+	FCharacterData CharacterData;
+	
 	UFUNCTION()
 	void OnCharacterMeshLoaded(const FSoftObjectPath& InAssetPath, UObject* InAsset);
+
+public:
+
+	UFUNCTION(BlueprintGetter)
+	FCharacterData GetCharacterData() const
+	{
+		return CharacterData;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void LoadCharacterData(const FDataTableRowHandle& InDataRow);
+	
+#pragma endregion 
 	
 };

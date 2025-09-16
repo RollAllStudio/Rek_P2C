@@ -7,6 +7,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "GameConstants.generated.h"
 
+class UCharacterSlotWidget;
 class UInputAction;
 class UInputMappingContext;
 class ULobbyPlayerSlotWidget;
@@ -34,32 +35,6 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Match")
 	static FSoftObjectPath GetMatchWorldPath();
-	
-#pragma endregion
-
-#pragma region Character
-
-private:
-	
-	UPROPERTY(EditAnywhere, Config, Category = "Character")
-	TSoftObjectPtr<USkeletalMesh> CharacterMesh;
-
-	UPROPERTY(EditAnywhere, Config, Category = "Character")
-	FTransform CharacterTransformOffset;
-	
-	UPROPERTY(EditAnywhere, Config, Category = "Character")
-	TSubclassOf<UAnimInstance> CharacterAnimInstance;
-
-public:
-
-	UFUNCTION(BlueprintPure, Category = "GameConstants|Character")
-	static TSoftObjectPtr<USkeletalMesh> GetCharacterMeshRef();
-
-	UFUNCTION(BlueprintPure, Category = "GameConstants|Character")
-	static FTransform GetCharacterTransformOffset();
-
-	UFUNCTION(BlueprintPure, Category = "GameConstants|Character")
-	static TSubclassOf<UAnimInstance> GetCharacterAnimInstance();
 	
 #pragma endregion
 
@@ -132,6 +107,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Config, Category = UI)
 	TSubclassOf<ULobbyPlayerSlotWidget> LobbyPlayerWidgetSlotClass;	
+
+	UPROPERTY(EditAnywhere, Config, Category = UI)
+	TSubclassOf<UCharacterSlotWidget> CharacterSlotWidgetClass;
 	
 public:
 
@@ -146,6 +124,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|UI")
 	static TSubclassOf<ULobbyPlayerSlotWidget> GetLobbyPlayerSlotWidgetClass();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|UI")
+	static TSubclassOf<UCharacterSlotWidget> GetCharacterSlotWidgetClass();	
 	
 #pragma endregion 
 	

@@ -2,14 +2,21 @@
 
 
 #include "TPPMulti/UI/Lobby/Public/LobbyPlayerSlotWidget.h"
-
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 
 void ULobbyPlayerSlotWidget::OnPlayerNameChanged(const FString& InNewName)
 {
 	ServerNameTextBlock->SetText(FText::FromString(InNewName));
+}
+
+void ULobbyPlayerSlotWidget::OnCharacterRowChanged(const FDataTableRowHandle& InCharacterRow)
+{
+	FCharacterData CharacterData;
+	if (UCharactersDataBase::ReadCharacterData(InCharacterRow, CharacterData))
+		CharacterNameTextBlock->SetText(CharacterData.DisplayName);
 }
 
 void ULobbyPlayerSlotWidget::OnPlayerReadyChanged(const bool InNewIsReady)
@@ -24,6 +31,7 @@ void ULobbyPlayerSlotWidget::UnbindPlayerState()
 		ServerPlayerState->OnServerUIDChanged.RemoveAll(this);
 		ServerPlayerState->OnServerNameChanged.RemoveAll(this);
 		ServerPlayerState->OnIsReadyChanged.RemoveAll(this);
+		ServerPlayerState->OnCharacterRowChanged.RemoveAll(this);
 	}
 }
 
@@ -35,6 +43,8 @@ void ULobbyPlayerSlotWidget::SetPlayerState_Internal(ALobbyPlayerState* InPlayer
 	{
 		OnPlayerNameChanged(InPlayerState->GetServerPlayerName());
 		InPlayerState->OnServerNameChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnPlayerNameChanged);
+		OnCharacterRowChanged(InPlayerState->GetCharacterRow());
+		InPlayerState->OnCharacterRowChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnCharacterRowChanged);
 		OnPlayerReadyChanged(InPlayerState->GetIsReady());
 		InPlayerState->OnIsReadyChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnPlayerReadyChanged);
 	}

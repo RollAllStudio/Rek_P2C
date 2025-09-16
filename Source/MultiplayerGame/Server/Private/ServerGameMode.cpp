@@ -2,6 +2,8 @@
 
 
 #include "MultiplayerGame/Server/Public/ServerGameMode.h"
+
+#include "MultiplayerGameSubsystem.h"
 #include "MultiplayerGame/Server/Public/ServerGameState.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerController.h"
 
@@ -21,4 +23,10 @@ void AServerGameMode::Logout(AController* Exiting)
 	
 	if (IsValid(AsServerPlayerController) && IsValid(ServerGameState))
 		ServerGameState->LogoutServerPlayer(AsServerPlayerController->GetServerUID());
+}
+
+void AServerGameMode::BeginPlay()
+{
+	Super::BeginPlay();
+	UMultiplayerGameSubsystem::SetCanLogout(this, true);
 }

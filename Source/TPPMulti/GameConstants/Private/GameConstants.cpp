@@ -15,21 +15,6 @@ FSoftObjectPath UGameConstants::GetMatchWorldPath()
 	return Get()->MatchWorldPath;
 }
 
-TSoftObjectPtr<USkeletalMesh> UGameConstants::GetCharacterMeshRef()
-{
-	return Get()->CharacterMesh;
-}
-
-FTransform UGameConstants::GetCharacterTransformOffset()
-{
-	return Get()->CharacterTransformOffset;
-}
-
-TSubclassOf<UAnimInstance> UGameConstants::GetCharacterAnimInstance()
-{
-	return Get()->CharacterAnimInstance;
-}
-
 float UGameConstants::GetCameraBoomLen()
 {
 	return Get()->CameraBoomLen;
@@ -85,4 +70,9 @@ TSubclassOf<USessionJoinSlotWidget> UGameConstants::GetSessionJoinWidgetSlotClas
 TSubclassOf<ULobbyPlayerSlotWidget> UGameConstants::GetLobbyPlayerSlotWidgetClass()
 {
 	return Get()->LobbyPlayerWidgetSlotClass;
+}
+
+TSubclassOf<UCharacterSlotWidget> UGameConstants::GetCharacterSlotWidgetClass()
+{
+	return Get()->CharacterSlotWidgetClass;
 }
