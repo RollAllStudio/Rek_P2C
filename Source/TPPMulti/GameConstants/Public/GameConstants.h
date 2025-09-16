@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DeveloperSettings.h"
 #include "GameConstants.generated.h"
 
+class UInputAction;
+class UInputMappingContext;
 class ULobbyPlayerSlotWidget;
 class USessionJoinSlotWidget;
 class ULobbyWidget;
@@ -31,6 +34,86 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Match")
 	static FSoftObjectPath GetMatchWorldPath();
+	
+#pragma endregion
+
+#pragma region Character
+
+private:
+	
+	UPROPERTY(EditAnywhere, Config, Category = "Character")
+	TSoftObjectPtr<USkeletalMesh> CharacterMesh;
+
+	UPROPERTY(EditAnywhere, Config, Category = "Character")
+	FTransform CharacterTransformOffset;
+	
+	UPROPERTY(EditAnywhere, Config, Category = "Character")
+	TSubclassOf<UAnimInstance> CharacterAnimInstance;
+
+public:
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Character")
+	static TSoftObjectPtr<USkeletalMesh> GetCharacterMeshRef();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Character")
+	static FTransform GetCharacterTransformOffset();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Character")
+	static TSubclassOf<UAnimInstance> GetCharacterAnimInstance();
+	
+#pragma endregion
+
+#pragma region Camera
+
+private:
+
+	UPROPERTY(EditAnywhere, Config, Category = "Camera")
+	float CameraBoomLen = 250.0f;
+
+	UPROPERTY(EditAnywhere, Config, Category = "Camera")
+	FTransform CameraBoomOffset;
+
+	UPROPERTY(EditAnywhere, Config, Category = "Camera")
+	TEnumAsByte<ECollisionChannel> CameraBoomProbeChannel;
+
+public:
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Camera")
+	static float GetCameraBoomLen();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Camera")
+	static FTransform GetCameraBoomOffset();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Camera")
+	static TEnumAsByte<ECollisionChannel> GetCameraBoomProbeChannel();
+	
+#pragma endregion 
+
+#pragma region Input
+
+private:
+
+	UPROPERTY(EditAnywhere, Config, Category = "Input")
+	TSoftObjectPtr<UInputMappingContext> DefaultMappingContext;
+	
+	UPROPERTY(EditAnywhere, Config, Category = "Input")
+	TMap<FGameplayTag, TSoftObjectPtr<UInputAction>> InputActions;
+
+	UPROPERTY(EditAnywhere, Config, Category = "Input")
+	FVector2D CameraPitchLimit = FVector2D(-45, 45);
+	
+public:
+
+	// As input assets are loaded on game ini, they can be loaded synchronous
+	
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Input")
+	static UInputMappingContext* LoadDefaultInputMappingContext();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Input")
+	static bool LoadInputMappingByTag(const FGameplayTag& InActionTag, UInputAction*& OutInputAction);
+	
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Input")
+	static FVector2D GetCameraPitchLimit();	
 	
 #pragma endregion 
 	
