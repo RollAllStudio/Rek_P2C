@@ -11,9 +11,16 @@
 #include "TPPMulti/InputTags/Public/InputTags.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
-void AMatchPlayerController::OnPossess(APawn* InPawn)
+void AMatchPlayerController::SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData)
 {
-	Super::OnPossess(InPawn);
+	Super::SetupServerPawn_Internal(InPawn, InServerPlayerData);
+	AMatchPlayerCharacter* MatchPlayerCharacter = Cast<AMatchPlayerCharacter>(InPawn);
+	MatchPlayerCharacter->LoadCharacterData(Cast<UMyServerPlayerData>(InServerPlayerData)->GetCharacterRow());
+}
+
+void AMatchPlayerController::SetupInputComponent()
+{
+	Super::SetupInputComponent();
 
 	if (IsLocalController())
 	{
@@ -35,13 +42,7 @@ InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatch
 	
 	#undef BIND_ACTION
 	}
-}
-
-void AMatchPlayerController::SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData)
-{
-	Super::SetupServerPawn_Internal(InPawn, InServerPlayerData);
-	AMatchPlayerCharacter* MatchPlayerCharacter = Cast<AMatchPlayerCharacter>(InPawn);
-	MatchPlayerCharacter->LoadCharacterData(Cast<UMyServerPlayerData>(InServerPlayerData)->GetCharacterRow());
+	
 }
 
 void AMatchPlayerController::InputAction_Move_Triggered(const FInputActionValue& InInputValue)
