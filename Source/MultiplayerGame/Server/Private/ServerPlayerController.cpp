@@ -39,7 +39,10 @@ void AServerPlayerController::SetServerUID_Internal(const int32& InNewUID)
 	ServerUID = InNewUID;
 	
 	if (IsLocalController())
+	{
 		UMultiplayerGameSubsystem::SetLocalPlayerUID(this, InNewUID);
+		UMultiplayerGameSubsystem::LoginServerPlayerAtUID(this, InNewUID);
+	}
 
 	if (IsValid(GetPawn()))
 		SetupServerPawn(GetPawn(), UMultiplayerGameSubsystem::GetServerPlayerData(this, InNewUID));

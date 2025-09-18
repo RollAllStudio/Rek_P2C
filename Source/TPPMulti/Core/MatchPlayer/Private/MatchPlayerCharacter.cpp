@@ -5,6 +5,7 @@
 
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 
@@ -19,6 +20,9 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	CameraComponent->SetupAttachment(CameraBoomComponent);
 
 	CameraBoomComponent->bUsePawnControlRotation = true;
+
+	GetMesh()->SetIsReplicated(true);
+	GetCharacterMovement()->SetIsReplicated(true);
 	
 }
 
