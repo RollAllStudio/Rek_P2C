@@ -16,6 +16,6 @@ public class TPPMultiTarget : TargetRules
 
 	private void RegisterModulesCreatedByRider()
 	{
-		ExtraModuleNames.AddRange(new string[] { "MultiplayerGame" });
+		ExtraModuleNames.AddRange(new string[] { "MultiplayerGame", "Actions" });
 	}
 }

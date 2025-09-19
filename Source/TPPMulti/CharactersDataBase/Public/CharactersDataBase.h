@@ -7,6 +7,8 @@
 #include "CharactersDataBase.generated.h"
 
 
+class UActionsCollection;
+
 USTRUCT(BlueprintType)
 struct FCharacterData : public FTableRowBase
 {
@@ -21,6 +23,9 @@ struct FCharacterData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	TSubclassOf<UAnimInstance> AnimInstance;	
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	TSoftObjectPtr<UActionsCollection> ActionsCollection;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	FText DisplayName;
 

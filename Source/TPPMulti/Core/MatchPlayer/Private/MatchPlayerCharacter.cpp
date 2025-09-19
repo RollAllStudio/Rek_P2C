@@ -4,11 +4,11 @@
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 
 #include "MultiplayerGameSubsystem.h"
+#include "Actions/Runtime/Public/ActionsComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
-#include "Net/UnrealNetwork.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
@@ -55,6 +55,8 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	MeshRootComponent = CreateDefaultSubobject<USceneComponent>("Mesh root");
 	MeshRootComponent->SetupAttachment(GetRootComponent());
 	GetMesh()->SetupAttachment(MeshRootComponent);
+
+	ActionsComponent = CreateDefaultSubobject<UActionsComponent>("ActionsComponent");
 	
 	bReplicates = true;
 }
@@ -94,5 +96,33 @@ void AMatchPlayerCharacter::LoadCharacterData(const FDataTableRowHandle& InDataR
 	{
 		CharacterData.Mesh.ToSoftObjectPath().LoadAsync(
 			FLoadSoftObjectPathAsyncDelegate::CreateUObject(this, &AMatchPlayerCharacter::OnCharacterMeshLoaded));
+
+		ActionsComponent->LoadActionsCollection(CharacterData.ActionsCollection);
 	}
+}
+
+void AMatchPlayerCharacter::Server_TryExecuteAction_Implementation(const FGameplayTag& InActionTag)
+{
+	ActionsComponent->TryExecuteAction(InActionTag);
+	NetMulticast_TryExecuteAction(InActionTag);
+}
+
+bool AMatchPlayerCharacter::Server_TryExecuteAction_Validate(const FGameplayTag& InActionTag)
+{
+	return UMultiplayerGameSubsystem::IsHost(this);
+}
+
+void AMatchPlayerCharacter::NetMulticast_TryExecuteAction_Implementation(const FGameplayTag& InActionTag)
+{
+	ActionsComponent->TryExecuteAction(InActionTag);
+}
+
+void AMatchPlayerCharacter::TryExecuteAction_Implementation(const FGameplayTag& InActionTag)
+{
+	IActionsInterface::TryExecuteAction_Implementation(InActionTag);
+	ActionsComponent->TryExecuteAction(InActionTag);
+	if (!UMultiplayerGameSubsystem::IsHost(this))
+		Server_TryExecuteAction(InActionTag);
+	else
+		NetMulticast_TryExecuteAction(InActionTag);
 }

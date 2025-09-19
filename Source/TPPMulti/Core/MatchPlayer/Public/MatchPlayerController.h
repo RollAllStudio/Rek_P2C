@@ -30,5 +30,8 @@ private:
 
 	UFUNCTION()
 	void InputAction_Jump_Triggered(const FInputActionValue& InInputValue);
+
+	UFUNCTION()
+	void InputAction_PrimaryAction_Triggered(const FInputActionValue& InInputValue);
 	
 };

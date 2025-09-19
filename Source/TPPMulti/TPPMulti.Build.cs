@@ -21,7 +21,8 @@ public class TPPMulti : ModuleRules
             "SlateCore",
             "MultiplayerGame",
             "OnlineSubsystem",
-            "GameplayTags"
+            "GameplayTags",
+"Actions"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

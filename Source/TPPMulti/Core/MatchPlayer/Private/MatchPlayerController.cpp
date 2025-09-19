@@ -4,8 +4,10 @@
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Actions/Runtime/Public/ActionsInterface.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
+#include "TPPMulti/ActionsTags/Public/ActionsTags.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/InputTags/Public/InputTags.h"
 
@@ -28,9 +30,11 @@ void AMatchPlayerController::SetupInputComponent()
 UInputAction* ActionRefVar; if (UGameConstants::LoadInputMappingByTag( InputTags:: ActionTag , ActionRefVar)) \
 InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatchPlayerController:: Function );
 
-		BIND_ACTION(MoveActionConfig, Move, LocalInputComponent, Triggered, InputAction_Move_Triggered)
-		BIND_ACTION(CameraActionConfig, Camera, LocalInputComponent, Triggered, InputAction_Camera_Triggered)
-		BIND_ACTION(JumpActionConfig, Jump, LocalInputComponent, Triggered, InputAction_Jump_Triggered)
+		BIND_ACTION(MoveActionConfig, Input_Move, LocalInputComponent, Triggered, InputAction_Move_Triggered)
+		BIND_ACTION(CameraActionConfig, Input_Camera, LocalInputComponent, Triggered, InputAction_Camera_Triggered)
+		BIND_ACTION(JumpActionConfig, Input_Jump, LocalInputComponent, Triggered, InputAction_Jump_Triggered)
+		BIND_ACTION(PrimaryActionConfig, Input_PrimaryAction, LocalInputComponent,
+			Triggered, InputAction_PrimaryAction_Triggered)
 	
 	#undef BIND_ACTION
 	}
@@ -60,4 +64,9 @@ void AMatchPlayerController::InputAction_Jump_Triggered(const FInputActionValue&
 {
 	ACharacter* LocalCharacter = Cast<ACharacter>(GetPawn());
 	LocalCharacter->Jump();
+}
+
+void AMatchPlayerController::InputAction_PrimaryAction_Triggered(const FInputActionValue& InInputValue)
+{
+	UActionsInterface::TryExecuteAction(GetPawn(), ActionTags::PrimaryAction);
 }

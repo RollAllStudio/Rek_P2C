@@ -3,15 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Actions/Runtime/Public/ActionsInterface.h"
 #include "GameFramework/Character.h"
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "MatchPlayerCharacter.generated.h"
 
+class UActionsComponent;
 class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class TPPMULTI_API AMatchPlayerCharacter : public ACharacter
+class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsInterface
 {
 	GENERATED_BODY()
 
@@ -26,6 +28,9 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	UCameraComponent* CameraComponent;
 
+	UPROPERTY(VisibleAnywhere, Category = Components)
+	UActionsComponent* ActionsComponent;
+	
 	UFUNCTION()
 	void OnServerUIDChanged(const int32& InNewUID);
 	void InitWithPlayerState();
@@ -62,6 +67,20 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void LoadCharacterData(const FDataTableRowHandle& InDataRow);
+	
+#pragma endregion 
+
+#pragma region Actions
+
+	UFUNCTION(Server, Reliable, WithValidation)
+	void Server_TryExecuteAction(const FGameplayTag& InActionTag);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_TryExecuteAction(const FGameplayTag& InActionTag);
+	
+public:
+
+	virtual void TryExecuteAction_Implementation(const FGameplayTag& InActionTag) override;
 	
 #pragma endregion 
 	
