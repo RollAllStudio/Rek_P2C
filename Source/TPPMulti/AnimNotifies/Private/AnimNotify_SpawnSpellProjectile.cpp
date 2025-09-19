@@ -8,7 +8,9 @@
 
 UAnimNotify_SpawnSpellProjectile::UAnimNotify_SpawnSpellProjectile()
 {
+#if WITH_EDITOR
 	bShouldFireInEditor = false;
+#endif
 }
 
 void UAnimNotify_SpawnSpellProjectile::Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation,
