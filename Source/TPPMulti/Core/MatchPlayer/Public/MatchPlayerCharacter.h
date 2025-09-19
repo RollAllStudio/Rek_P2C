@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "SpellCasterInterface.h"
 #include "Actions/Runtime/Public/ActionsInterface.h"
 #include "GameFramework/Character.h"
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
@@ -14,7 +15,7 @@ class UCameraComponent;
 class USpringArmComponent;
 
 UCLASS()
-class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsInterface
+class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsInterface , public ISpellCasterInterface
 {
 	GENERATED_BODY()
 
@@ -47,6 +48,8 @@ protected:
 	
 	virtual void BeginPlay() override;
 	virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
+		AController* EventInstigator, AActor* DamageCauser) override;
 
 #pragma endregion 
 	
@@ -85,6 +88,15 @@ public:
 
 	virtual void TryExecuteAction_Implementation(const FGameplayTag& InActionTag) override;
 	
+#pragma endregion
+
+#pragma region SpellCasterInterface
+
+public:
+
+	virtual FTransform GetSpellInitialTransform_Implementation() override;
+	virtual APawn* GetSpellInstigatorPawn_Implementation() override;
+
 #pragma endregion 
 	
 };

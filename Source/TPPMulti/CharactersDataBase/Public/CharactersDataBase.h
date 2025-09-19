@@ -30,6 +30,9 @@ struct FCharacterData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	TMap<FGameplayTag, UDynamicMeshConfig*> DynamicMeshes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	FName SpellSpawnSocket;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	FText DisplayName;

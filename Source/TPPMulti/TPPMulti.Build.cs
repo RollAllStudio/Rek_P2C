@@ -23,7 +23,8 @@ public class TPPMulti : ModuleRules
             "OnlineSubsystem",
             "GameplayTags",
 			"Actions",
-			"DynamicMeshSpawner"
+			"DynamicMeshSpawner",
+			"SpellProjectile"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

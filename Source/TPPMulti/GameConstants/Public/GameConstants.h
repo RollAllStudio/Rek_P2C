@@ -25,6 +25,20 @@ class TPPMULTI_API UGameConstants : public UDeveloperSettings
 
 	static const UGameConstants* Get();
 
+#pragma region Misc
+
+private:
+	
+	UPROPERTY(EditAnywhere, Config)
+	float SpellTargetTraceLen = 2500.0f;
+
+public:
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants")
+	static float GetSpellTargetTraceLen();
+	
+#pragma endregion 
+
 #pragma region Match
 
 private:

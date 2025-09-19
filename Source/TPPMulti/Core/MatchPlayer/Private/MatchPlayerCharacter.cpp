@@ -7,9 +7,10 @@
 #include "NativeGameplayTags.h"
 #include "Actions/Runtime/Public/ActionsComponent.h"
 #include "Camera/CameraComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "DynamicMeshSpawner/Runtime/Public/DynamicMeshSpawnerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
@@ -82,6 +83,13 @@ void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, A
 	InitWithPlayerState();
 }
 
+float AMatchPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
+	AController* EventInstigator, AActor* DamageCauser)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, "Damage Taken");
+	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+}
+
 void AMatchPlayerCharacter::OnCharacterMeshLoaded(const FSoftObjectPath& InAssetPath, UObject* InAsset)
 {
 	GetMesh()->SetSkeletalMeshAsset(Cast<USkeletalMesh>(InAsset));
@@ -131,4 +139,34 @@ void AMatchPlayerCharacter::TryExecuteAction_Implementation(const FGameplayTag& 
 		Server_TryExecuteAction(InActionTag);
 	else
 		NetMulticast_TryExecuteAction(InActionTag);
+}
+
+FTransform AMatchPlayerCharacter::GetSpellInitialTransform_Implementation()
+{
+	const FVector SpawnLocation = GetMesh()->GetSocketLocation(CharacterData.SpellSpawnSocket);
+	const FVector SpawnScale = FVector(1);
+
+	const FVector CameraForwardVector = CameraComponent->GetForwardVector();
+	const FVector TraceEndLocation = CameraComponent->GetComponentLocation() + CameraForwardVector *
+		UGameConstants::GetSpellTargetTraceLen();
+
+	FHitResult CameraHitResult;
+	UKismetSystemLibrary::LineTraceSingle(this, SpawnLocation, TraceEndLocation,
+		TraceTypeQuery2, true, {this}, EDrawDebugTrace::None,
+		CameraHitResult, true);
+
+	FVector TargetLocation;
+	if (CameraHitResult.IsValidBlockingHit())
+		TargetLocation = CameraHitResult.Location;
+	else
+		TargetLocation = TraceEndLocation;
+
+	const FRotator SpawnRotation = UKismetMathLibrary::FindLookAtRotation(SpawnLocation, TargetLocation);
+	
+	return FTransform(SpawnRotation, SpawnLocation, SpawnScale);
+}
+
+APawn* AMatchPlayerCharacter::GetSpellInstigatorPawn_Implementation()
+{
+	return this;
 }

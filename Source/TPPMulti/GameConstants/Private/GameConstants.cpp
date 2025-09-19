@@ -10,6 +10,11 @@ const UGameConstants* UGameConstants::Get()
 	return GetDefault<UGameConstants>();
 }
 
+float UGameConstants::GetSpellTargetTraceLen()
+{
+	return Get()->SpellTargetTraceLen;
+}
+
 FSoftObjectPath UGameConstants::GetMatchWorldPath()
 {
 	return Get()->MatchWorldPath;
