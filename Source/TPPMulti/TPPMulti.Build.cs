@@ -22,7 +22,8 @@ public class TPPMulti : ModuleRules
             "MultiplayerGame",
             "OnlineSubsystem",
             "GameplayTags",
-"Actions"
+			"Actions",
+			"DynamicMeshSpawner"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

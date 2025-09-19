@@ -3,10 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CharactersDataBase.generated.h"
 
 
+class UDynamicMeshConfig;
 class UActionsCollection;
 
 USTRUCT(BlueprintType)
@@ -25,6 +27,9 @@ struct FCharacterData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	TSoftObjectPtr<UActionsCollection> ActionsCollection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	TMap<FGameplayTag, UDynamicMeshConfig*> DynamicMeshes;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	FText DisplayName;

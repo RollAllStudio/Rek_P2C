@@ -4,13 +4,18 @@
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 
 #include "MultiplayerGameSubsystem.h"
+#include "NativeGameplayTags.h"
 #include "Actions/Runtime/Public/ActionsComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "DynamicMeshSpawner/Runtime/Public/DynamicMeshSpawnerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
+
+UE_DEFINE_GAMEPLAY_TAG_STATIC(MeshComponentTag, "DynamicComponents.Parent.CharacterMesh")
+UE_DEFINE_GAMEPLAY_TAG_STATIC(WeaponComponentTag, "DynamicComponents.Weapon")
 
 void AMatchPlayerCharacter::OnServerUIDChanged(const int32& InNewUID)
 {
@@ -57,6 +62,7 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	GetMesh()->SetupAttachment(MeshRootComponent);
 
 	ActionsComponent = CreateDefaultSubobject<UActionsComponent>("ActionsComponent");
+	DynamicMeshSpawnerComponent = CreateDefaultSubobject<UDynamicMeshSpawnerComponent>("DynamicMeshSpawner");
 	
 	bReplicates = true;
 }
@@ -70,18 +76,11 @@ void AMatchPlayerCharacter::BeginPlay()
 	SetReplicateMovement(true);
 }
 
-void AMatchPlayerCharacter::OnRep_PlayerState()
-{
-	Super::OnRep_PlayerState();
-}
-
 void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
 {
 	Super::OnPlayerStateChanged(NewPlayerState, OldPlayerState);
 	InitWithPlayerState();
 }
-
-
 
 void AMatchPlayerCharacter::OnCharacterMeshLoaded(const FSoftObjectPath& InAssetPath, UObject* InAsset)
 {
@@ -94,10 +93,17 @@ void AMatchPlayerCharacter::LoadCharacterData(const FDataTableRowHandle& InDataR
 {
 	if (UCharactersDataBase::ReadCharacterData(InDataRow, CharacterData))
 	{
+		// Load Character Mesh
 		CharacterData.Mesh.ToSoftObjectPath().LoadAsync(
 			FLoadSoftObjectPathAsyncDelegate::CreateUObject(this, &AMatchPlayerCharacter::OnCharacterMeshLoaded));
 
+		// Load actions
 		ActionsComponent->LoadActionsCollection(CharacterData.ActionsCollection);
+
+		// Load dynamic meshes
+		DynamicMeshSpawnerComponent->AddTaggedParent(MeshComponentTag, GetMesh());
+		for (auto DynamicMeshData : CharacterData.DynamicMeshes)
+			DynamicMeshSpawnerComponent->LoadAndSpawnMesh(DynamicMeshData.Key, DynamicMeshData.Value);
 	}
 }
 

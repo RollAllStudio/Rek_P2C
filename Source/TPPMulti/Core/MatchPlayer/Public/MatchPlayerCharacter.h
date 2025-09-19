@@ -8,6 +8,7 @@
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "MatchPlayerCharacter.generated.h"
 
+class UDynamicMeshSpawnerComponent;
 class UActionsComponent;
 class UCameraComponent;
 class USpringArmComponent;
@@ -30,6 +31,9 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsIn
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	UActionsComponent* ActionsComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = Components)
+	UDynamicMeshSpawnerComponent* DynamicMeshSpawnerComponent;
 	
 	UFUNCTION()
 	void OnServerUIDChanged(const int32& InNewUID);
@@ -42,7 +46,6 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
-	virtual void OnRep_PlayerState() override;
 	virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
 
 #pragma endregion 
