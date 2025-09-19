@@ -11,13 +11,13 @@ class AServerPlayerState;
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract, BlueprintType, Blueprintable)
 class MULTIPLAYERGAME_API UServerPlayerData : public UObject
 {
 	GENERATED_BODY()
 
 public:
 
-	virtual void InitData(UMultiplayerGameSubsystem* MultiplayerGameSubsystem, const int32& InPlayerUID);
+	virtual void InitByPlayerState(AServerPlayerState* InPlayerState) PURE_VIRTUAL();
 	
 };

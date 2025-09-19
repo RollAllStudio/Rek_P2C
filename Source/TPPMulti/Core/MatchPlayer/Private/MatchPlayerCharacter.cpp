@@ -3,11 +3,41 @@
 
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 
+#include "MultiplayerGameSubsystem.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "MultiplayerGame/Server/Public/ServerPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
+#include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
+
+void AMatchPlayerCharacter::OnServerUIDChanged(const int32& InNewUID)
+{
+	InitWithPlayerState();
+}
+
+void AMatchPlayerCharacter::InitWithPlayerState()
+{
+	AServerPlayerState* ServerPlayerState = Cast<AServerPlayerState>(GetPlayerState());
+	if (IsValid(ServerPlayerState))
+	{
+		ServerPlayerState->OnServerUIDChanged.RemoveAll(this);
+		const int32 ServerUID = ServerPlayerState->GetServerUID();
+		if (ServerUID != INDEX_NONE)
+		{
+			UMyServerPlayerData* MyServerPlayerData =
+				Cast<UMyServerPlayerData>(UMultiplayerGameSubsystem::GetServerPlayerData(this, ServerUID));
+			if (IsValid(MyServerPlayerData))
+			{
+				LoadCharacterData(MyServerPlayerData->GetCharacterRow());
+			}
+		}
+		else
+		{
+			ServerPlayerState->OnServerUIDChanged.AddUniqueDynamic(this, &AMatchPlayerCharacter::OnServerUIDChanged);
+		}
+	}
+}
 
 AMatchPlayerCharacter::AMatchPlayerCharacter()
 {
@@ -20,10 +50,8 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	CameraComponent->SetupAttachment(CameraBoomComponent);
 
 	CameraBoomComponent->bUsePawnControlRotation = true;
-
-	GetMesh()->SetIsReplicated(true);
-	GetCharacterMovement()->SetIsReplicated(true);
 	
+	bReplicates = true;
 }
 
 void AMatchPlayerCharacter::BeginPlay()
@@ -32,6 +60,17 @@ void AMatchPlayerCharacter::BeginPlay()
 	CameraBoomComponent->TargetArmLength = UGameConstants::GetCameraBoomLen();
 	CameraBoomComponent->ProbeChannel = UGameConstants::GetCameraBoomProbeChannel();
 	CameraBoomComponent->SetRelativeTransform(UGameConstants::GetCameraBoomOffset());
+}
+
+void AMatchPlayerCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+}
+
+void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
+{
+	Super::OnPlayerStateChanged(NewPlayerState, OldPlayerState);
+	InitWithPlayerState();
 }
 
 void AMatchPlayerCharacter::OnCharacterMeshLoaded(const FSoftObjectPath& InAssetPath, UObject* InAsset)

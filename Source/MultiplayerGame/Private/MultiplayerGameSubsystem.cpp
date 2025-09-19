@@ -36,7 +36,6 @@ void UMultiplayerGameSubsystem::LoginServerPlayerAtUID_Internal(const int32& InU
 	if (!ServerPlayers.Contains(InUID))
 	{
 		ServerPlayers.Add(InUID, nullptr);
-		InitServerPlayerData(InUID);
 	}
 }
 
@@ -78,20 +77,35 @@ void UMultiplayerGameSubsystem::LogoutServerPlayer_Internal(const int32& InUID)
 void UMultiplayerGameSubsystem::SetServerPlayerState_Internal(const int32& InServerPlayerUID,
                                                               AServerPlayerState* InPlayerState)
 {
+
+#define VALIDATE_S_PLAYER_DATA if (!HasPlayerData(InServerPlayerUID))\
+	CreateServerPlayerData(InServerPlayerUID)->InitByPlayerState(InPlayerState);
+	
 	if (ServerPlayers.Contains(InServerPlayerUID))
 		if (ServerPlayers[InServerPlayerUID] == InPlayerState)
+		{
+			VALIDATE_S_PLAYER_DATA
 			return;
+		}
 
 	ServerPlayers.Add(InServerPlayerUID, InPlayerState);
+	VALIDATE_S_PLAYER_DATA
 	OnServerPlayerChanged.Broadcast(InServerPlayerUID, InPlayerState);
 }
 
-void UMultiplayerGameSubsystem::InitServerPlayerData(const int32& InServerPlayerUID)
+UServerPlayerData* UMultiplayerGameSubsystem::CreateServerPlayerData(const int32& InServerPlayerUID)
 {
 	UServerPlayerData* NewData = NewObject<UServerPlayerData>(
 		this, UMultiplayerGameConstants::GetServerPlayerDataClass());
 	ServerPlayersData.Add(InServerPlayerUID, NewData);
-	NewData->InitData(this, InServerPlayerUID);
+	return NewData;
+}
+
+bool UMultiplayerGameSubsystem::HasPlayerData(const int32& InServerPlayerUID)
+{
+	if (ServerPlayersData.Contains(InServerPlayerUID))
+		return IsValid(ServerPlayersData[InServerPlayerUID]);
+	return false;
 }
 
 UServerPlayerData* UMultiplayerGameSubsystem::GetServerPlayerData_Internal(const int32& InUID)

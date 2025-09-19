@@ -15,7 +15,7 @@ class MULTIPLAYERGAME_API AServerGameState : public AGameStateBase
 	GENERATED_BODY()
 
 public:
-
+	
 	UFUNCTION(NetMulticast, Reliable)
 	void LogoutServerPlayer(const int32& InServerPlayerUID);
 	

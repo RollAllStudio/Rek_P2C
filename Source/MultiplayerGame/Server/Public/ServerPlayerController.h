@@ -32,7 +32,6 @@ public:
 
 	virtual void InitPlayerState() override;
 	virtual void OnRep_PlayerState() override;
-	virtual void OnPossess(APawn* InPawn) override;
 
 	UFUNCTION(Client, Reliable)
 	void Client_LeaveSession();
@@ -53,13 +52,5 @@ public:
 	AServerPlayerState* GetServerPlayerState() const;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
-
-protected:
-
-	virtual void SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData);
-
-private:
-
-	void SetupServerPawn(APawn* InPawn, UServerPlayerData* InServerPlayerData);
 	
 };

@@ -2,18 +2,18 @@
 
 
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
-
-#include "MultiplayerGameSubsystem.h"
 #include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 
-void UMyServerPlayerData::InitData(UMultiplayerGameSubsystem* MultiplayerGameSubsystem, const int32& InPlayerUID)
+void UMyServerPlayerData::InitByPlayerState(AServerPlayerState* InPlayerState)
 {
-	Super::InitData(MultiplayerGameSubsystem, InPlayerUID);
-	ALobbyPlayerState* LobbyPlayerState =
-		Cast<ALobbyPlayerState>(UMultiplayerGameSubsystem::GetServerPlayerState(MultiplayerGameSubsystem,
-			InPlayerUID));
+#pragma region LobbyPS
+
+	const ALobbyPlayerState* LobbyPlayerState = Cast<ALobbyPlayerState>(InPlayerState);
 	if (IsValid(LobbyPlayerState))
 		SetCharacterRow(LobbyPlayerState->GetCharacterRow());
+
+#pragma endregion 
+	
 }
 
 void UMyServerPlayerData::SetCharacterRow(const FDataTableRowHandle& InCharacterRow)

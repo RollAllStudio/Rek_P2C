@@ -21,7 +21,11 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter
 	USpringArmComponent* CameraBoomComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
-	UCameraComponent* CameraComponent;	
+	UCameraComponent* CameraComponent;
+
+	UFUNCTION()
+	void OnServerUIDChanged(const int32& InNewUID);
+	void InitWithPlayerState();
 
 public:
 
@@ -30,6 +34,8 @@ public:
 protected:
 	
 	virtual void BeginPlay() override;
+	virtual void OnRep_PlayerState() override;
+	virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
 
 #pragma endregion 
 	

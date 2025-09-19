@@ -6,17 +6,9 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/InputTags/Public/InputTags.h"
-#include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
-void AMatchPlayerController::SetupServerPawn_Internal(APawn* InPawn, UServerPlayerData* InServerPlayerData)
-{
-	Super::SetupServerPawn_Internal(InPawn, InServerPlayerData);
-	AMatchPlayerCharacter* MatchPlayerCharacter = Cast<AMatchPlayerCharacter>(InPawn);
-	MatchPlayerCharacter->LoadCharacterData(Cast<UMyServerPlayerData>(InServerPlayerData)->GetCharacterRow());
-}
 
 void AMatchPlayerController::SetupInputComponent()
 {

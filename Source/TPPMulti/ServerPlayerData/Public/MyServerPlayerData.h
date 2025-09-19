@@ -19,7 +19,7 @@ class TPPMULTI_API UMyServerPlayerData : public UServerPlayerData
 
 public:
 
-	virtual void InitData(UMultiplayerGameSubsystem* MultiplayerGameSubsystem, const int32& InPlayerUID) override;
+	virtual void InitByPlayerState(AServerPlayerState* InPlayerState) override;
 
 	UFUNCTION(BlueprintGetter)
 	FDataTableRowHandle GetCharacterRow() const

@@ -54,7 +54,8 @@ private:
 	void LogoutServerPlayer_Internal(const int32& InUID);
 
 	void SetServerPlayerState_Internal(const int32& InServerPlayerUID, AServerPlayerState* InPlayerState);
-	void InitServerPlayerData(const int32& InServerPlayerUID);
+	UServerPlayerData* CreateServerPlayerData(const int32& InServerPlayerUID);
+	bool HasPlayerData(const int32& InServerPlayerUID);
 	UServerPlayerData* GetServerPlayerData_Internal(const int32& InUID);
 	AServerPlayerState* GetServerPlayerState_Internal(const int32& InUID);
 	
