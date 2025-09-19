@@ -7,6 +7,7 @@
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerController.h"
+#include "TPPMulti/UI/HUD/Public/MatchHUD.h"
 
 AMatchGameMode::AMatchGameMode()
 {
@@ -14,4 +15,5 @@ AMatchGameMode::AMatchGameMode()
 	DefaultPawnClass = AMatchPlayerCharacter::StaticClass();
 	PlayerStateClass = AServerPlayerState::StaticClass();
 	GameStateClass = AServerGameState::StaticClass();
+	HUDClass = AMatchHUD::StaticClass();
 }

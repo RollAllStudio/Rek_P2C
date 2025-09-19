@@ -52,7 +52,7 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	CameraBoomComponent = CreateDefaultSubobject<USpringArmComponent>("CameraBoom");
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 
-	CameraBoomComponent->SetupAttachment(GetCapsuleComponent());
+	CameraBoomComponent->SetupAttachment(GetRootComponent());
 	CameraComponent->SetupAttachment(CameraBoomComponent);
 
 	CameraBoomComponent->bUsePawnControlRotation = true;

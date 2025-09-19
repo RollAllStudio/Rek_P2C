@@ -7,6 +7,7 @@
 #include "Engine/DeveloperSettings.h"
 #include "GameConstants.generated.h"
 
+class UMatchHUDWidget;
 class UCharacterSlotWidget;
 class UInputAction;
 class UInputMappingContext;
@@ -110,6 +111,9 @@ private:
 
 	UPROPERTY(EditAnywhere, Config, Category = UI)
 	TSubclassOf<UCharacterSlotWidget> CharacterSlotWidgetClass;
+
+	UPROPERTY(EditAnywhere, Config, Category = UI)
+	TSubclassOf<UMatchHUDWidget> MatchPlayerHUDWidgetClass;
 	
 public:
 
@@ -127,6 +131,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|UI")
 	static TSubclassOf<UCharacterSlotWidget> GetCharacterSlotWidgetClass();	
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|UI")
+	static TSubclassOf<UMatchHUDWidget> GetMatchHUDWidgetClass();
 	
 #pragma endregion 
 	

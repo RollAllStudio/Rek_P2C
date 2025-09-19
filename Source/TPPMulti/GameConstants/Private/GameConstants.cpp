@@ -76,3 +76,8 @@ TSubclassOf<UCharacterSlotWidget> UGameConstants::GetCharacterSlotWidgetClass()
 {
 	return Get()->CharacterSlotWidgetClass;
 }
+
+TSubclassOf<UMatchHUDWidget> UGameConstants::GetMatchHUDWidgetClass()
+{
+	return Get()->MatchPlayerHUDWidgetClass;
+}
