@@ -14,18 +14,13 @@ class MULTIPLAYERGAME_API AServerPlayerState : public APlayerState
 {
 	GENERATED_BODY()
 
-public:
-
-	AServerPlayerState();
-	virtual void Tick(float DeltaSeconds) override;
-
 private:
 
 	UPROPERTY(BlueprintGetter = GetServerPlayerName, BlueprintSetter = SetServerPlayerName, ReplicatedUsing = OnRep_ServerPlayerName)
 	FString ServerPlayerName;
 
 	UPROPERTY(BlueprintGetter = GetServerUID, BlueprintSetter = SetServerUID, ReplicatedUsing = OnRep_ServerUID)
-	int32 ServerUID;
+	int32 ServerUID = INDEX_NONE;
 
 	UFUNCTION()
 	void OnRep_ServerPlayerName();

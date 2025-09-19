@@ -8,6 +8,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
+#include "Net/UnrealNetwork.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
@@ -50,6 +51,10 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	CameraComponent->SetupAttachment(CameraBoomComponent);
 
 	CameraBoomComponent->bUsePawnControlRotation = true;
+
+	MeshRootComponent = CreateDefaultSubobject<USceneComponent>("Mesh root");
+	MeshRootComponent->SetupAttachment(GetRootComponent());
+	GetMesh()->SetupAttachment(MeshRootComponent);
 	
 	bReplicates = true;
 }
@@ -60,6 +65,7 @@ void AMatchPlayerCharacter::BeginPlay()
 	CameraBoomComponent->TargetArmLength = UGameConstants::GetCameraBoomLen();
 	CameraBoomComponent->ProbeChannel = UGameConstants::GetCameraBoomProbeChannel();
 	CameraBoomComponent->SetRelativeTransform(UGameConstants::GetCameraBoomOffset());
+	SetReplicateMovement(true);
 }
 
 void AMatchPlayerCharacter::OnRep_PlayerState()
@@ -73,10 +79,12 @@ void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, A
 	InitWithPlayerState();
 }
 
+
+
 void AMatchPlayerCharacter::OnCharacterMeshLoaded(const FSoftObjectPath& InAssetPath, UObject* InAsset)
 {
 	GetMesh()->SetSkeletalMeshAsset(Cast<USkeletalMesh>(InAsset));
-	GetMesh()->SetRelativeTransform(CharacterData.MeshOffset);
+	MeshRootComponent->SetRelativeTransform(CharacterData.MeshOffset);
 	GetMesh()->SetAnimInstanceClass(CharacterData.AnimInstance);
 }
 

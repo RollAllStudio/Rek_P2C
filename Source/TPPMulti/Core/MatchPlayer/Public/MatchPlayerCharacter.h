@@ -21,6 +21,9 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter
 	USpringArmComponent* CameraBoomComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
+	USceneComponent* MeshRootComponent;	
+
+	UPROPERTY(VisibleAnywhere, Category = Components)
 	UCameraComponent* CameraComponent;
 
 	UFUNCTION()
@@ -63,3 +66,4 @@ public:
 #pragma endregion 
 	
 };
+

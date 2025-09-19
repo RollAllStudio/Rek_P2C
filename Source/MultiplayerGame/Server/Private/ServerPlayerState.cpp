@@ -5,23 +5,6 @@
 #include "MultiplayerGameSubsystem.h"
 #include "Net/UnrealNetwork.h"
 
-AServerPlayerState::AServerPlayerState()
-{
-	PrimaryActorTick.bCanEverTick = true;
-}
-
-void AServerPlayerState::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-
-	FName KeyName = FName(GetName());
-	int32 KeyValue = GetTypeHash(KeyName);
-	GEngine->AddOnScreenDebugMessage(KeyValue, 5, FColor::Green, FString::Printf(
-		TEXT("Player %s | UID : %i | Name : %s"),
-		*GetName(), ServerUID, *ServerPlayerName));
-	
-}
-
 void AServerPlayerState::OnRep_ServerPlayerName()
 {
 	SetServerPlayerName_Internal(ServerPlayerName);
