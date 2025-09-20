@@ -9,6 +9,7 @@
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "MatchPlayerCharacter.generated.h"
 
+class UMeleeDamageColliderComponent;
 class UResourcesComponent;
 class UDynamicMeshSpawnerComponent;
 class UActionsComponent;
@@ -38,11 +39,17 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsIn
 	UDynamicMeshSpawnerComponent* DynamicMeshSpawnerComponent;
 
 	UPROPERTY(VisibleAnywhere, Category = Components, BlueprintGetter = GetResourceComponent)
-	UResourcesComponent* ResourcesComponent;	
+	UResourcesComponent* ResourcesComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = Components)
+	UMeleeDamageColliderComponent* MeleeDamageColliderComponent;
 	
 	UFUNCTION()
 	void OnServerUIDChanged(const int32& InNewUID);
 	void InitWithPlayerState();
+
+	UFUNCTION()
+	void OnDynamicMeshSpawned(const FGameplayTag& InMeshTag, UStaticMeshComponent* InComponent);
 
 public:
 
@@ -108,6 +115,15 @@ public:
 	virtual FTransform GetSpellInitialTransform_Implementation() override;
 	virtual APawn* GetSpellInstigatorPawn_Implementation() override;
 
+#pragma endregion
+
+#pragma region MeleeDamage
+
+public:
+
+	void EnableMeleeDamage();
+	void DisableMeleeDamage();
+	
 #pragma endregion 
 	
 };

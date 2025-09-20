@@ -11,6 +11,9 @@
 class UDynamicMeshLoader;
 class UDynamicMeshConfig;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FDynamicMeshSpawnerComponent_OnMeshSpawned_Signature,
+	const FGameplayTag&, MeshTag, UStaticMeshComponent*, MeshComponent);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class DYNAMICMESHSPAWNER_API UDynamicMeshSpawnerComponent : public UActorComponent
 {
@@ -29,6 +32,9 @@ class DYNAMICMESHSPAWNER_API UDynamicMeshSpawnerComponent : public UActorCompone
 	TMap<FGameplayTag, USceneComponent*> SpawnedComponents;
 	
 public:
+
+	UPROPERTY(BlueprintAssignable)
+	FDynamicMeshSpawnerComponent_OnMeshSpawned_Signature OnMeshSpawned;
 
 	UFUNCTION(BlueprintCallable)
 	void LoadAndSpawnMesh(const FGameplayTag& InMeshTag, UDynamicMeshConfig* InMeshConfig);

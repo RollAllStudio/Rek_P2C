@@ -29,6 +29,7 @@ void UDynamicMeshSpawnerComponent::OnMeshLoaded(const FGameplayTag& InMeshTag)
 	NewComponent->AttachToComponent(ParentComponent, MeshConfig->GetAttachmentRules(), MeshConfig->GetAttachSocket());
 	NewComponent->SetRelativeTransform(MeshConfig->GetTransformOffset());
 	SpawnedComponents.Add(InMeshTag, NewComponent);
+	OnMeshSpawned.Broadcast(InMeshTag, NewComponent);
 }
 
 void UDynamicMeshSpawnerComponent::LoadAndSpawnMesh(const FGameplayTag& InMeshTag, UDynamicMeshConfig* InMeshConfig)

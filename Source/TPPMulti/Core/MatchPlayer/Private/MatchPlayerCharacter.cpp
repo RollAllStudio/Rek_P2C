@@ -14,6 +14,7 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
+#include "TPPMulti/MeleeDamageCollider/Public/MeleeDamageColliderComponent.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
 // Dynamic component tags
@@ -54,6 +55,20 @@ void AMatchPlayerCharacter::InitWithPlayerState()
 	}
 }
 
+void AMatchPlayerCharacter::OnDynamicMeshSpawned(const FGameplayTag& InMeshTag, UStaticMeshComponent* InComponent)
+{
+	if (InMeshTag == WeaponComponentTag)
+	{
+		MeleeDamageColliderComponent->AttachToComponent(InComponent,
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale, CharacterData.DamageCollider_AttachSocket);
+		MeleeDamageColliderComponent->SetRelativeTransform(CharacterData.DamageCollider_Offset);
+		MeleeDamageColliderComponent->SetCapsuleRadius(CharacterData.DamageCollider_Radius);
+		MeleeDamageColliderComponent->SetCapsuleHalfHeight(CharacterData.DamageCollider_HalfHeight);
+		MeleeDamageColliderComponent->SetCollisionProfileName(CharacterData.DamageCollider_CollisionProfileName.Name);
+		DisableMeleeDamage();
+	}
+}
+
 AMatchPlayerCharacter::AMatchPlayerCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -73,6 +88,10 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	ActionsComponent = CreateDefaultSubobject<UActionsComponent>("ActionsComponent");
 	DynamicMeshSpawnerComponent = CreateDefaultSubobject<UDynamicMeshSpawnerComponent>("DynamicMeshSpawner");
 	ResourcesComponent = CreateDefaultSubobject<UResourcesComponent>("ResourcesComponent");
+
+	MeleeDamageColliderComponent = CreateDefaultSubobject<UMeleeDamageColliderComponent>("MeleeDamageCollider");
+	MeleeDamageColliderComponent->SetupAttachment(GetRootComponent());
+	MeleeDamageColliderComponent->SetCollisionProfileName("NoCollision");
 	
 	bReplicates = true;
 }
@@ -126,9 +145,7 @@ void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, A
 float AMatchPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	AController* EventInstigator, AActor* DamageCauser)
 {
-	if (UMultiplayerGameSubsystem::IsHost(this))
-		ResourcesComponent->ConsumeResource(ResourceHealth, DamageAmount);
-	
+	ResourcesComponent->ConsumeResource(ResourceHealth, DamageAmount);
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
@@ -150,6 +167,9 @@ void AMatchPlayerCharacter::LoadCharacterData(const FDataTableRowHandle& InDataR
 		// Load actions
 		ActionsComponent->LoadActionsCollection(CharacterData.ActionsCollection);
 
+		DynamicMeshSpawnerComponent->OnMeshSpawned.AddUniqueDynamic(this,
+			&AMatchPlayerCharacter::OnDynamicMeshSpawned);
+		
 		// Load dynamic meshes
 		DynamicMeshSpawnerComponent->AddTaggedParent(MeshComponentTag, GetMesh());
 		for (auto DynamicMeshData : CharacterData.DynamicMeshes)
@@ -219,4 +239,14 @@ FTransform AMatchPlayerCharacter::GetSpellInitialTransform_Implementation()
 APawn* AMatchPlayerCharacter::GetSpellInstigatorPawn_Implementation()
 {
 	return this;
+}
+
+void AMatchPlayerCharacter::EnableMeleeDamage()
+{
+	MeleeDamageColliderComponent->StartDamaging();
+}
+
+void AMatchPlayerCharacter::DisableMeleeDamage()
+{
+	MeleeDamageColliderComponent->StopDamaging();
 }
