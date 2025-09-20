@@ -7,6 +7,8 @@
 #include "UObject/Object.h"
 #include "ActionDefinition_Base.generated.h"
 
+class UActionSuccessEvent_Base;
+class UActionExecuteCondition_Base;
 class UActionsComponent;
 /**
  * 
@@ -15,6 +17,12 @@ UCLASS(DefaultToInstanced, EditInlineNew, Abstract)
 class ACTIONS_API UActionDefinition_Base : public UObject
 {
 	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, Instanced)
+	TObjectPtr<UActionExecuteCondition_Base> Condition;
+
+	UPROPERTY(EditAnywhere, Instanced)
+	TObjectPtr<UActionSuccessEvent_Base> SuccessEvent;
 
 	/*
 	 * This action will lock this stack by default.
