@@ -134,6 +134,7 @@ void AMatchPlayerCharacter::BeginPlay()
 	CameraBoomComponent->SetRelativeTransform(UGameConstants::GetCameraBoomOffset());
 	SetReplicateMovement(true);
 	ResourcesComponent->SetIsReplicated(true);
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::OnlyTickMontagesWhenNotRendered;
 }
 
 void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
