@@ -28,42 +28,54 @@ void ASpellProjectileActor::SetSpellConfig_Internal(USpellConfig* InSpellConfig)
 void ASpellProjectileActor::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	FVector NormalImpulse, const FHitResult& Hit)
 {
+	ProcessHitOrOverlapActor(OtherActor);
+}
 
-	SetActorEnableCollision(false);
-	if (IsValid(SpellConfig))
-	{
-
-		if (SpellConfig->GetDamageRadius() <= 0)
-		{
-			ApplySpellDamage(OtherActor);
-		}
-		else
-		{
-			TArray<FOverlapResult> OverlapResults;
-			GetWorld()->OverlapMultiByProfile(OverlapResults, GetActorLocation(), FQuat::Identity,
-				SpellConfig->GetHitOverlapProfileName(), FCollisionShape::MakeSphere(SpellConfig->GetDamageRadius()));
-
-			
-			for (auto OverlapResult : OverlapResults)
-			{
-				AActor* HitActor = OverlapResult.GetActor();
-				ApplySpellDamage(HitActor);
-			}
-
-			HitNiagaraComponent->OnSystemFinished.AddUniqueDynamic(this, &ASpellProjectileActor::OnHitSystemFinished);
-			HitNiagaraComponent->SetAsset(SpellConfig->GetHitNiagaraSystem());
-			
-		}
-		
-	}
-
-	FlyNiagaraComponent->SetActive(false);
-	
+void ASpellProjectileActor::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ProcessHitOrOverlapActor(OtherActor);
 }
 
 void ASpellProjectileActor::OnHitSystemFinished(UNiagaraComponent* InComponent)
 {
 	Destroy();
+}
+
+void ASpellProjectileActor::ProcessHitOrOverlapActor(AActor* OtherActor)
+{
+	if (OtherActor != GetOwner())
+	{
+		SetActorEnableCollision(false);
+		if (IsValid(SpellConfig))
+		{
+
+			if (SpellConfig->GetDamageRadius() <= 0)
+			{
+				ApplySpellDamage(OtherActor);
+			}
+			else
+			{
+				TArray<FOverlapResult> OverlapResults;
+				GetWorld()->OverlapMultiByProfile(OverlapResults, GetActorLocation(), FQuat::Identity,
+					SpellConfig->GetHitOverlapProfileName(), FCollisionShape::MakeSphere(SpellConfig->GetDamageRadius()));
+
+			
+				for (auto OverlapResult : OverlapResults)
+				{
+					AActor* HitActor = OverlapResult.GetActor();
+					ApplySpellDamage(HitActor);
+				}
+
+				HitNiagaraComponent->OnSystemFinished.AddUniqueDynamic(this, &ASpellProjectileActor::OnHitSystemFinished);
+				HitNiagaraComponent->SetAsset(SpellConfig->GetHitNiagaraSystem());
+			
+			}
+		
+		}
+
+		FlyNiagaraComponent->SetActive(false);
+	}
 }
 
 void ASpellProjectileActor::ApplySpellDamage(AActor* InActor)
@@ -106,6 +118,8 @@ void ASpellProjectileActor::BeginPlay()
 	Super::BeginPlay();
 	SetReplicateMovement(true);
 	CollisionComponent->OnComponentHit.AddUniqueDynamic(this, &ASpellProjectileActor::OnHit);
+	CollisionComponent->OnComponentBeginOverlap.AddUniqueDynamic(
+		this, &ASpellProjectileActor::ASpellProjectileActor::OnBeginOverlap);
 }
 
 ASpellProjectileActor* ASpellProjectileActor::SpawnSpellProjectile(AActor* InOwnerActor, USpellConfig* InSpellConfig)

@@ -9,6 +9,7 @@
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "MatchPlayerCharacter.generated.h"
 
+class UResourcesComponent;
 class UDynamicMeshSpawnerComponent;
 class UActionsComponent;
 class UCameraComponent;
@@ -35,6 +36,9 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsIn
 
 	UPROPERTY(VisibleAnywhere, Category = Components)
 	UDynamicMeshSpawnerComponent* DynamicMeshSpawnerComponent;
+
+	UPROPERTY(VisibleAnywhere, Category = Components, BlueprintGetter = GetResourceComponent)
+	UResourcesComponent* ResourcesComponent;	
 	
 	UFUNCTION()
 	void OnServerUIDChanged(const int32& InNewUID);
@@ -43,6 +47,13 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsIn
 public:
 
 	AMatchPlayerCharacter();
+	virtual void Tick(float DeltaSeconds) override;
+
+	UFUNCTION(BlueprintGetter)
+	UResourcesComponent* GetResourceComponent() const
+	{
+		return ResourcesComponent;
+	}
 
 protected:
 	

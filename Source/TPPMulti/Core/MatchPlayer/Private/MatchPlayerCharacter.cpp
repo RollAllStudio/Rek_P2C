@@ -5,6 +5,7 @@
 
 #include "MultiplayerGameSubsystem.h"
 #include "NativeGameplayTags.h"
+#include "ResourcesComponent.h"
 #include "Actions/Runtime/Public/ActionsComponent.h"
 #include "Camera/CameraComponent.h"
 #include "DynamicMeshSpawner/Runtime/Public/DynamicMeshSpawnerComponent.h"
@@ -15,8 +16,15 @@
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
+// Dynamic component tags
 UE_DEFINE_GAMEPLAY_TAG_STATIC(MeshComponentTag, "DynamicComponents.Parent.CharacterMesh")
 UE_DEFINE_GAMEPLAY_TAG_STATIC(WeaponComponentTag, "DynamicComponents.Weapon")
+
+// Resources tags
+UE_DEFINE_GAMEPLAY_TAG_STATIC(ResourceHealth, "Resource.Health")
+UE_DEFINE_GAMEPLAY_TAG_STATIC(ResourceStamina, "Resource.Stamina")
+UE_DEFINE_GAMEPLAY_TAG_STATIC(ResourceMana, "Resource.Mana")
+
 
 void AMatchPlayerCharacter::OnServerUIDChanged(const int32& InNewUID)
 {
@@ -64,8 +72,39 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 
 	ActionsComponent = CreateDefaultSubobject<UActionsComponent>("ActionsComponent");
 	DynamicMeshSpawnerComponent = CreateDefaultSubobject<UDynamicMeshSpawnerComponent>("DynamicMeshSpawner");
+	ResourcesComponent = CreateDefaultSubobject<UResourcesComponent>("ResourcesComponent");
 	
 	bReplicates = true;
+}
+
+// TODO : Remove tick when resource UI will be ready
+void AMatchPlayerCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+	
+	const float HP = ResourcesComponent->GetResourceValue(ResourceHealth);
+	const float Stamina = ResourcesComponent->GetResourceValue(ResourceStamina);
+	const float Mana = ResourcesComponent->GetResourceValue(ResourceMana);
+
+	FString SPlayerName;
+
+	AServerPlayerState* PS = Cast<AServerPlayerState>(GetPlayerState());
+	if (IsValid(PS))
+	{
+		SPlayerName = PS->GetServerPlayerName();
+	}
+	else
+	{
+		SPlayerName = GetName();
+	}
+
+	FName PName = FName(SPlayerName);
+	int32 KeyName = GetTypeHash(PName);
+	
+	GEngine->AddOnScreenDebugMessage(KeyName, 1.0f, FColor::Green, FString::Printf(
+		TEXT("Player %s resources | HP : %f | Stam : %f | Mana : %f"),
+		*SPlayerName, HP, Stamina, Mana));
+	
 }
 
 void AMatchPlayerCharacter::BeginPlay()
@@ -75,6 +114,7 @@ void AMatchPlayerCharacter::BeginPlay()
 	CameraBoomComponent->ProbeChannel = UGameConstants::GetCameraBoomProbeChannel();
 	CameraBoomComponent->SetRelativeTransform(UGameConstants::GetCameraBoomOffset());
 	SetReplicateMovement(true);
+	ResourcesComponent->SetIsReplicated(true);
 }
 
 void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState)
@@ -86,7 +126,9 @@ void AMatchPlayerCharacter::OnPlayerStateChanged(APlayerState* NewPlayerState, A
 float AMatchPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 	AController* EventInstigator, AActor* DamageCauser)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, "Damage Taken");
+	if (UMultiplayerGameSubsystem::IsHost(this))
+		ResourcesComponent->ConsumeResource(ResourceHealth, DamageAmount);
+	
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 
@@ -112,6 +154,14 @@ void AMatchPlayerCharacter::LoadCharacterData(const FDataTableRowHandle& InDataR
 		DynamicMeshSpawnerComponent->AddTaggedParent(MeshComponentTag, GetMesh());
 		for (auto DynamicMeshData : CharacterData.DynamicMeshes)
 			DynamicMeshSpawnerComponent->LoadAndSpawnMesh(DynamicMeshData.Key, DynamicMeshData.Value);
+
+		// Resources
+		ResourcesComponent->bIsReplicationSource = UMultiplayerGameSubsystem::IsHost(this);
+		for (auto ResourceData : CharacterData.ResourcesData)
+		{
+			UResourceInstance* ResourceInstance;
+			ResourcesComponent->SetupResource(ResourceData.Key, ResourceData.Value, ResourceInstance);
+		}
 	}
 }
 

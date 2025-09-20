@@ -7,7 +7,7 @@
 #include "Actions/Runtime/Public/ActionsInterface.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
-#include "TPPMulti/ActionsTags/Public/ActionsTags.h"
+#include "TPPMulti/ActionsAPI/Public/ActionsTags.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/InputTags/Public/InputTags.h"
 

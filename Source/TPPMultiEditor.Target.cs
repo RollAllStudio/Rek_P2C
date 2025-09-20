@@ -16,6 +16,6 @@ public class TPPMultiEditorTarget : TargetRules
 
 	private void RegisterModulesCreatedByRider()
 	{
-		ExtraModuleNames.AddRange(new string[] { "MultiplayerGame", "Actions", "DynamicMeshSpawner", "SpellProjectile" });
+		ExtraModuleNames.AddRange(new string[] { "MultiplayerGame", "Actions", "DynamicMeshSpawner", "SpellProjectile", "ResourceComponent" });
 	}
 }

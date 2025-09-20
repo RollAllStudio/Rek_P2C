@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameplayTagContainer.h"
+#include "ResourceDataTypes.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CharactersDataBase.generated.h"
 
@@ -33,6 +34,9 @@ struct FCharacterData : public FTableRowBase
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FName SpellSpawnSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
+	TMap<FGameplayTag, FResourceInitData> ResourcesData;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	FText DisplayName;

@@ -24,7 +24,8 @@ public class TPPMulti : ModuleRules
             "GameplayTags",
 			"Actions",
 			"DynamicMeshSpawner",
-			"SpellProjectile"
+			"SpellProjectile",
+			"ResourceComponent"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
