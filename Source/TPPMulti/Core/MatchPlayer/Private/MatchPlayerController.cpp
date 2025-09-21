@@ -48,6 +48,12 @@ InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatch
 	
 }
 
+void AMatchPlayerController::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+	OnNewPawnSet_Signature.Broadcast(InPawn);
+}
+
 bool AMatchPlayerController::CanControlPawn() const
 {
 	if (bMatchFinished)

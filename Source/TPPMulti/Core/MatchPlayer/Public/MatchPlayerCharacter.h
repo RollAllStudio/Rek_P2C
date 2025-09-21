@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NativeGameplayTags.h"
 #include "SpellCasterInterface.h"
 #include "Actions/Runtime/Public/ActionsInterface.h"
 #include "GameFramework/Character.h"
@@ -55,7 +56,6 @@ class TPPMULTI_API AMatchPlayerCharacter : public ACharacter , public IActionsIn
 public:
 
 	AMatchPlayerCharacter();
-	virtual void Tick(float DeltaSeconds) override;
 
 	UFUNCTION(BlueprintGetter)
 	UResourcesComponent* GetResourceComponent() const

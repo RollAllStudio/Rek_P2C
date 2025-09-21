@@ -9,6 +9,8 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchPlayerController_OnPlayerWin_Signature,
 	const int32&, PlayerUID);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchPlayerController_OnNewPawnSet_Signature,
+	APawn*, NewPawn);
 
 UCLASS()
 class TPPMULTI_API AMatchPlayerController : public AServerPlayerController
@@ -22,10 +24,14 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMatchPlayerController_OnPlayerWin_Signature OnPlayerWin;
+
+	UPROPERTY(BlueprintAssignable)
+	FMatchPlayerController_OnNewPawnSet_Signature OnNewPawnSet_Signature;
 	
 protected:
 	
 	virtual void SetupInputComponent() override;
+	virtual void SetPawn(APawn* InPawn) override;
 
 private:
 

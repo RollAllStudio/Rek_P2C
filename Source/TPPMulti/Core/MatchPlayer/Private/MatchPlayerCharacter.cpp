@@ -136,36 +136,6 @@ AMatchPlayerCharacter::AMatchPlayerCharacter()
 	bReplicates = true;
 }
 
-// TODO : Remove tick when resource UI will be ready
-void AMatchPlayerCharacter::Tick(float DeltaSeconds)
-{
-	Super::Tick(DeltaSeconds);
-	
-	const float HP = ResourcesComponent->GetResourceValue(ResourceHealth);
-	const float Stamina = ResourcesComponent->GetResourceValue(ResourceStamina);
-	const float Mana = ResourcesComponent->GetResourceValue(ResourceMana);
-
-	FString SPlayerName;
-
-	AServerPlayerState* PS = Cast<AServerPlayerState>(GetPlayerState());
-	if (IsValid(PS))
-	{
-		SPlayerName = PS->GetServerPlayerName();
-	}
-	else
-	{
-		SPlayerName = GetName();
-	}
-
-	FName PName = FName(SPlayerName);
-	int32 KeyName = GetTypeHash(PName);
-	
-	GEngine->AddOnScreenDebugMessage(KeyName, 1.0f, FColor::Green, FString::Printf(
-		TEXT("Player %s resources | HP : %f | Stam : %f | Mana : %f"),
-		*SPlayerName, HP, Stamina, Mana));
-	
-}
-
 void AMatchPlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();

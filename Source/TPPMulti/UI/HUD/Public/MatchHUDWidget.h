@@ -3,9 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Blueprint/UserWidget.h"
 #include "MatchHUDWidget.generated.h"
 
+class UResourcesComponent;
+class UResourceBarWidget;
 class UTextBlock;
 class UOverlay;
 class UWidgetSwitcher;
@@ -19,6 +22,16 @@ class TPPMULTI_API UMatchHUDWidget : public UUserWidget
 
 	UFUNCTION()
 	void OnPlayerWin(const int32& InPlayerUID);
+
+	UFUNCTION()
+	void OnControllerPawnChanged(APawn* InNewPawn);
+	void ClearResourcesBars();
+
+	UFUNCTION()
+	void OnResourceInitialized(const FGameplayTag& InResourceTag);
+
+	UPROPERTY()
+	UResourcesComponent* ResourcesComponent;
 
 protected:
 
@@ -39,6 +52,15 @@ private:
 
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetMatchOverlay)
 	TObjectPtr<UOverlay> MatchOverlay;
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetHealthBar)
+	TObjectPtr<UResourceBarWidget> HealthBar;
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetStaminaBar)
+	TObjectPtr<UResourceBarWidget> StaminaBar;
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetManaBar)
+	TObjectPtr<UResourceBarWidget> ManaBar;
 	
 public:
 
@@ -64,6 +86,24 @@ public:
 	UOverlay* GetMatchOverlay()
 	{
 		return MatchOverlay;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UResourceBarWidget* GetHealthBar() const
+	{
+		return HealthBar;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UResourceBarWidget* GetStaminaBar() const
+	{
+		return StaminaBar;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UResourceBarWidget* GetManaBar() const
+	{
+		return ManaBar;
 	}
 	
 #pragma endregion 
