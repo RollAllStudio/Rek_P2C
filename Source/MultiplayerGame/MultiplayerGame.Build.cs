@@ -11,7 +11,8 @@ public class MultiplayerGame : ModuleRules
             {
                 "Core",
                 "DeveloperSettings", 
-                "OnlineSubsystem"
+                "OnlineSubsystem",
+                "GameplayTags"
             }
         );
 

@@ -2,12 +2,15 @@
 
 
 #include "TPPMulti/UI/Lobby/Public/LobbyWidget.h"
-
+#include "MultiplayerGameConstants.h"
 #include "MultiplayerGameSubsystem.h"
+#include "NativeGameplayTags.h"
 #include "Components/Button.h"
+#include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Kismet/GameplayStatics.h"
+#include "TPPMulti/Core/CoreLib/Public/CoreLibrary.h"
 #include "TPPMulti/Core/GameStates/Public/LobbyGameState.h"
 #include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
@@ -30,6 +33,30 @@ void ULobbyWidget::OnClicked_ReadyButton()
 void ULobbyWidget::OnClicked_CloseSessionButton()
 {
 	UMultiplayerGameSubsystem::CloseSession(this);
+}
+
+void ULobbyWidget::OnTextCommitted_WinConditionTextBox(const FText& Text, ETextCommit::Type CommitMethod)
+{
+	const FString AsString = Text.ToString();
+	if (AsString.IsNumeric())
+	{
+		const int AsInt = FCString::Atoi(*AsString);
+		if (AsInt > 0)
+		{
+			CachedWinConditionText = Text;
+			UMultiplayerGameSubsystem::SetWinCondition(this,
+				WinConditionsTags::WinCondition_Kills, AsInt);
+
+			ALobbyGameState* LobbyGameState = Cast<ALobbyGameState>(
+				UGameplayStatics::GetGameState(this));
+			LobbyGameState->SetWinConditionKills(AsInt);
+			
+			return;
+		}
+	}
+
+	WinConditionTextBox->SetText(CachedWinConditionText);
+	
 }
 
 void ULobbyWidget::OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState)
@@ -100,6 +127,21 @@ void ULobbyWidget::OnPlayerReadyChanged(const bool InNewIsReady)
 	
 }
 
+void ULobbyWidget::OnWinConditionKillsChanged(const int InValue)
+{
+	WinConditionTextBox->SetText(FText::FromString(FString::FromInt(InValue)));
+}
+
+void ULobbyWidget::UpdateWinConditionText(const int InValue)
+{
+	CachedWinConditionText = FText::FromString(FString::FromInt(InValue));
+	WinConditionTextBox->SetText(CachedWinConditionText);
+	ALobbyGameState* LobbyGameState = Cast<ALobbyGameState>(
+				UGameplayStatics::GetGameState(this));
+	LobbyGameState->SetWinConditionKills(InValue);
+	UMultiplayerGameSubsystem::SetWinCondition(this, WinConditionsTags::WinCondition_Kills, InValue);
+}
+
 void ULobbyWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
@@ -142,5 +184,29 @@ void ULobbyWidget::NativeOnInitialized()
 
 	ALobbyGameState* LobbyGameState = Cast<ALobbyGameState>(UGameplayStatics::GetGameState(this));
 	LobbyGameState->OnStartTravelToMatchWorld.AddUniqueDynamic(this, &ULobbyWidget::OnStartTravelToMatchWorld);
+
+	if (UMultiplayerGameSubsystem::IsHost(this))
+	{
+		int WinConditionValue;
+		if (UMultiplayerGameSubsystem::FindWinConditionValue(this,
+			WinConditionsTags::WinCondition_Kills, WinConditionValue))
+		{
+			UpdateWinConditionText(WinConditionValue);
+		}
+		else
+		{
+			UMultiplayerGameConstants::FindDefaultWinCondition(WinConditionsTags::WinCondition_Kills, WinConditionValue);
+			UpdateWinConditionText(WinConditionValue);
+		}
+
+		WinConditionTextBox->OnTextCommitted.AddUniqueDynamic(this, &ULobbyWidget::OnTextCommitted_WinConditionTextBox);
+		WinConditionTextBox->SetIsEnabled(true);
+	}
+	else
+	{
+		WinConditionTextBox->SetIsEnabled(false);
+		OnWinConditionKillsChanged(LobbyGameState->GetWinConditionKills());
+		LobbyGameState->OnWinConditionKillsChanged.AddUniqueDynamic(this, &ULobbyWidget::OnWinConditionKillsChanged);
+	}
 	
 }

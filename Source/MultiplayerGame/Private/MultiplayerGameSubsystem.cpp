@@ -203,6 +203,22 @@ void UMultiplayerGameSubsystem::ClearLocalServerData()
 	LocalPlayerUID = INDEX_NONE;
 	ServerPlayers.Empty();
 	ServerPlayersData.Empty();
+	WinConditions.Empty();
+}
+
+bool UMultiplayerGameSubsystem::FindWindConditionValue_Internal(const FGameplayTag& InConditionTag, int& OutValue)
+{
+	if (WinConditions.Contains(InConditionTag))
+	{
+		OutValue = WinConditions[InConditionTag];
+		return OutValue > 0;
+	}
+	return false;
+}
+
+void UMultiplayerGameSubsystem::SetWinCondition_Internal(const FGameplayTag& InConditionTag, const int InValue)
+{
+	WinConditions.Add(InConditionTag, InValue);
 }
 
 void UMultiplayerGameSubsystem::SetLocalHostedSessionName(const FText& InNewSessionName, const UObject* WorldContextObject)
@@ -248,6 +264,18 @@ FText UMultiplayerGameSubsystem::GetLocalJoinedSessionName(const UObject* WorldC
 bool UMultiplayerGameSubsystem::IsHost(const UObject* WorldContextObject)
 {
 	return GetSubsystem(WorldContextObject)->bIsHost;
+}
+
+bool UMultiplayerGameSubsystem::FindWinConditionValue(const UObject* WorldContextObject,
+	const FGameplayTag& InConditionTag, int& OutValue)
+{
+	return GetSubsystem(WorldContextObject)->FindWindConditionValue_Internal(InConditionTag, OutValue);
+}
+
+void UMultiplayerGameSubsystem::SetWinCondition(const UObject* WorldContextObject, const FGameplayTag& InConditionTag,
+	const int InValue)
+{
+	GetSubsystem(WorldContextObject)->SetWinCondition_Internal(InConditionTag, InValue);
 }
 
 FString UMultiplayerGameSubsystem::CreateServerTravelLink(const FString& InWorldPath)

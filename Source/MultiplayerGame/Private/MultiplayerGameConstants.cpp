@@ -42,3 +42,14 @@ TSubclassOf<UServerPlayerData> UMultiplayerGameConstants::GetServerPlayerDataCla
 {
 	return Get()->ServerPlayerDataClass;
 }
+
+bool UMultiplayerGameConstants::FindDefaultWinCondition(const FGameplayTag& InConditionTag, int& OutValue)
+{
+	const UMultiplayerGameConstants* ConfigObject = Get();
+	if (ConfigObject->DefaultWinConditions.Contains(InConditionTag))
+	{
+		OutValue = ConfigObject->DefaultWinConditions[InConditionTag];
+		return OutValue > 0;
+	}
+	return false;
+}

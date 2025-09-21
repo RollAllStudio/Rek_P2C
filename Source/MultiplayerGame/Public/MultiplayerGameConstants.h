@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Engine/DeveloperSettings.h"
 #include "MultiplayerGameConstants.generated.h"
 
@@ -38,7 +39,10 @@ private:
 	FSoftObjectPath SessionDestroyedReturnWorldPath;
 
 	UPROPERTY(EditAnywhere, Config)
-	TSubclassOf<UServerPlayerData> ServerPlayerDataClass;	
+	TSubclassOf<UServerPlayerData> ServerPlayerDataClass;
+
+	UPROPERTY(EditAnywhere, Config)
+	TMap<FGameplayTag, int> DefaultWinConditions;
 
 public:
 	
@@ -62,5 +66,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Multiplayer")
 	static TSubclassOf<UServerPlayerData> GetServerPlayerDataClass();
+
+	UFUNCTION(BlueprintCallable, Category = "GameConstants|Multiplayer")
+	static bool FindDefaultWinCondition(const FGameplayTag& InConditionTag, int& OutValue);
 	
 };

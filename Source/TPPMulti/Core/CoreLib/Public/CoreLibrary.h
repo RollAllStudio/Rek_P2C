@@ -3,12 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "NativeGameplayTags.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "CoreLibrary.generated.h"
 
-/**
- * 
- */
+namespace WinConditionsTags
+{
+	UE_DECLARE_GAMEPLAY_TAG_EXTERN(WinCondition_Kills)
+}
+
 UCLASS()
 class TPPMULTI_API UCoreLibrary : public UBlueprintFunctionLibrary
 {

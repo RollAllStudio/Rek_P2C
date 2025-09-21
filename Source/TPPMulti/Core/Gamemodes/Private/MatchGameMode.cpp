@@ -2,9 +2,11 @@
 
 
 #include "TPPMulti/Core/Gamemodes/Public/MatchGameMode.h"
+#include "MultiplayerGameSubsystem.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
 #include "MultiplayerGame/Server/Public/ServerGameState.h"
+#include "TPPMulti/Core/CoreLib/Public/CoreLibrary.h"
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerController.h"
 #include "TPPMulti/Core/PlayerStates/Public/MatchPlayerState.h"
@@ -39,6 +41,14 @@ FVector AMatchGameMode::GetRandomRespawnPosition() const
 void AMatchGameMode::ScorePlayer(AMatchPlayerState* InPlayerState)
 {
 	InPlayerState->ScorePlayer();
-	if (InPlayerState->GetPlayerScore() > 2)
+
+	int KillsWinCondition;
+	UMultiplayerGameSubsystem::FindWinConditionValue(this, WinConditionsTags::WinCondition_Kills,
+		KillsWinCondition);
+	
+	if (InPlayerState->GetPlayerScore() >= KillsWinCondition)
+	{
+		FinishMatch();
 		InPlayerState->IncrementWins();
+	}
 }

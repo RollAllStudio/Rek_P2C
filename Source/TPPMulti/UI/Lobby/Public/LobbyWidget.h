@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "LobbyWidget.generated.h"
 
+class UEditableTextBox;
 class ULobbyPlayerSlotWidget;
 class AServerPlayerState;
 class UButton;
@@ -31,6 +32,9 @@ private:
 	void OnClicked_CloseSessionButton();
 
 	UFUNCTION()
+	void OnTextCommitted_WinConditionTextBox(const FText& Text, ETextCommit::Type CommitMethod);
+
+	UFUNCTION()
 	void OnServerPlayerChanged(const int32& InPlayerUID, AServerPlayerState* InServerPlayerState);
 
 	UFUNCTION()
@@ -41,6 +45,14 @@ private:
 
 	UPROPERTY()
 	TMap<int32, ULobbyPlayerSlotWidget*> PlayerSlots;
+
+	UPROPERTY()
+	FText CachedWinConditionText;
+
+	UFUNCTION()
+	void OnWinConditionKillsChanged(const int InValue);
+
+	void UpdateWinConditionText(const int InValue);
 
 protected:
 
@@ -67,6 +79,9 @@ private:
 
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetCloseSessionButton)
 	TObjectPtr<UButton> CloseSessionButton;
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetWinConditionTextBox)
+	TObjectPtr<UEditableTextBox> WinConditionTextBox;
 
 public:
 
@@ -98,6 +113,12 @@ public:
 	UButton* GetCloseSessionButton() const
 	{
 		return CloseSessionButton;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UEditableTextBox* GetWinConditionTextBox() const
+	{
+		return WinConditionTextBox;
 	}
 	
 #pragma endregion 

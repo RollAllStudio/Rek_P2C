@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "GameplayTagContainer.h"
 #include "Interfaces/OnlineSessionInterface.h"
 #include "Subsystems/GameInstanceSubsystem.h"
 #include "MultiplayerGameSubsystem.generated.h"
@@ -116,12 +117,17 @@ private:
 	UPROPERTY()
 	bool bCanHostSession;
 
+	UPROPERTY()
+	TMap<FGameplayTag, int> WinConditions;
+	
 	void SetLocalSessionName_Internal(const FText& InNewSessionName);
 	void SetLocalPlayerName_Internal(const FText& InNewPlayerName);
 	void SetLocalPlayerUID_Internal(const int32& InNewUID);
 	int32 GetLocalPlayerUID_Internal() const;
 	void OnHostConditionsChanged();
 	void ClearLocalServerData();
+	bool FindWindConditionValue_Internal(const FGameplayTag& InConditionTag, int& OutValue);
+	void SetWinCondition_Internal(const FGameplayTag& InConditionTag, const int InValue);
 
 public:
 
@@ -151,6 +157,14 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static bool IsHost(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static bool FindWinConditionValue(const UObject* WorldContextObject,
+		const FGameplayTag& InConditionTag, int& OutValue);
+
+	UFUNCTION(BlueprintCallable, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static void SetWinCondition(const UObject* WorldContextObject, const FGameplayTag& InConditionTag,
+		const int InValue);
 	
 	UPROPERTY(BlueprintAssignable)
 	FMultiplayerGameSubsystem_TextEvent_Signature OnLocalSessionNameChanged;
