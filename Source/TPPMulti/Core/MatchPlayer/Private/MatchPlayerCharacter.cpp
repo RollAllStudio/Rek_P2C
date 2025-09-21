@@ -83,6 +83,9 @@ void AMatchPlayerCharacter::OnHealthDepleted(const FGameplayTag& ResourceTag, UR
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, FTimerDelegate::CreateUObject(this,
 			&AMatchPlayerCharacter::Respawn), UGameConstants::GetRespawnTime(), false);
 
+		if (LastDamagingCharacter == this)
+			return;
+		
 		AMatchPlayerState* MatchPlayerState = Cast<AMatchPlayerState>(LastDamagingCharacter->GetPlayerState());
 		Cast<AMatchGameMode>(UGameplayStatics::GetGameMode(this))->ScorePlayer(MatchPlayerState);
 	}
