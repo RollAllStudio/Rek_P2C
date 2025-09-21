@@ -15,6 +15,11 @@ float UGameConstants::GetSpellTargetTraceLen()
 	return Get()->SpellTargetTraceLen;
 }
 
+float UGameConstants::GetRespawnTime()
+{
+	return Get()->RespawnTime;
+}
+
 FSoftObjectPath UGameConstants::GetMatchWorldPath()
 {
 	return Get()->MatchWorldPath;

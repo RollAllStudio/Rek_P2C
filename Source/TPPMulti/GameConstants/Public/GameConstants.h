@@ -32,10 +32,16 @@ private:
 	UPROPERTY(EditAnywhere, Config)
 	float SpellTargetTraceLen = 2500.0f;
 
+	UPROPERTY(EditAnywhere, Config)
+	float RespawnTime;
+	
 public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants")
 	static float GetSpellTargetTraceLen();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants")
+	static float GetRespawnTime();
 	
 #pragma endregion 
 

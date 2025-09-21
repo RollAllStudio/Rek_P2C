@@ -67,6 +67,9 @@ public:
 	float GetResourceValue(const FGameplayTag& InResourceTag) const;
 
 	UFUNCTION(BlueprintCallable)
+	void SetResourceValue(const FGameplayTag& InResourceTag, const float InValue);
+	
+	UFUNCTION(BlueprintCallable)
 	bool FindResourceInstance(const FGameplayTag& InResourceTag, UResourceInstance*& OutResourceInstance) const;
 
 	UFUNCTION(BlueprintPure)

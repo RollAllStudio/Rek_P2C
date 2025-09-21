@@ -8,6 +8,7 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
 #include "TPPMulti/ActionsAPI/Public/ActionsTags.h"
+#include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/InputTags/Public/InputTags.h"
 
@@ -41,8 +42,15 @@ InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatch
 	
 }
 
+#define CHECK_CHARACTER_ALIVE \
+AMatchPlayerCharacter* MatchPlayerCharacter = \
+	Cast<AMatchPlayerCharacter>(GetPawn()); \
+if (!IsValid(MatchPlayerCharacter)) return; \
+if (!MatchPlayerCharacter->GetIsAlive()) return;
+
 void AMatchPlayerController::InputAction_Move_Triggered(const FInputActionValue& InInputValue)
 {
+	CHECK_CHARACTER_ALIVE
 	FVector RawValue = InInputValue.Get<FVector>();
 	const FRotator PawnRotation = GetPawn()->GetActorRotation();
 	RawValue = PawnRotation.RotateVector(RawValue);
@@ -51,6 +59,7 @@ void AMatchPlayerController::InputAction_Move_Triggered(const FInputActionValue&
 
 void AMatchPlayerController::InputAction_Camera_Triggered(const FInputActionValue& InInputValue)
 {
+	CHECK_CHARACTER_ALIVE
 	const FVector RawValue = InInputValue.Get<FVector>();
 	FRotator CurrentControlRotation = GetControlRotation();
 	CurrentControlRotation.Yaw += RawValue.X;
@@ -62,11 +71,15 @@ void AMatchPlayerController::InputAction_Camera_Triggered(const FInputActionValu
 
 void AMatchPlayerController::InputAction_Jump_Triggered(const FInputActionValue& InInputValue)
 {
+	CHECK_CHARACTER_ALIVE
 	ACharacter* LocalCharacter = Cast<ACharacter>(GetPawn());
 	LocalCharacter->Jump();
 }
 
 void AMatchPlayerController::InputAction_PrimaryAction_Triggered(const FInputActionValue& InInputValue)
 {
+	CHECK_CHARACTER_ALIVE
 	UActionsInterface::TryExecuteAction(GetPawn(), ActionTags::PrimaryAction);
 }
+
+#undef CHECK_CHARACTER_ALIVE

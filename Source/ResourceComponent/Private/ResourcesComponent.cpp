@@ -108,6 +108,11 @@ void UResourcesComponent::AddResource(const FGameplayTag& InResourceTag, const f
 	CALL_ON_RESOURCE(InResourceTag, AddResource, InValue)
 }
 
+void UResourcesComponent::SetResourceValue(const FGameplayTag& InResourceTag, const float InValue)
+{
+	CALL_ON_RESOURCE(InResourceTag, SetResourceValue, InValue);	
+}
+
 #undef CALL_ON_RESOURCE
 
 float UResourcesComponent::GetResourceValue(const FGameplayTag& InResourceTag) const
@@ -119,7 +124,7 @@ float UResourcesComponent::GetResourceValue(const FGameplayTag& InResourceTag) c
 }
 
 bool UResourcesComponent::FindResourceInstance(const FGameplayTag& InResourceTag,
-	UResourceInstance*& OutResourceInstance) const
+                                               UResourceInstance*& OutResourceInstance) const
 {
 	if (ResourceInstances.Contains(InResourceTag))
 	{

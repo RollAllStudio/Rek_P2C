@@ -9,6 +9,7 @@
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "MatchPlayerCharacter.generated.h"
 
+class UResourceInstance;
 class UMeleeDamageColliderComponent;
 class UResourcesComponent;
 class UDynamicMeshSpawnerComponent;
@@ -69,6 +70,35 @@ protected:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
 		AController* EventInstigator, AActor* DamageCauser) override;
 
+#pragma endregion
+
+#pragma region DeathAndRespawn
+
+private:
+
+	UPROPERTY()
+	FTimerHandle RespawnTimer;
+
+	UPROPERTY(BlueprintGetter = GetIsAlive)
+	bool bIsAlive;
+
+	UFUNCTION()
+	void Respawn();
+
+	UFUNCTION()
+	void OnHealthDepleted(const FGameplayTag& ResourceTag, UResourceInstance* ResourceInstance);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void NetMulticast_Respawn();
+	
+public:
+
+	UFUNCTION(BlueprintGetter)
+	bool GetIsAlive() const
+	{
+		return bIsAlive;
+	}
+	
 #pragma endregion 
 	
 #pragma region CharacterData

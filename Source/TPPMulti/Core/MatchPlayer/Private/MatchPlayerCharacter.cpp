@@ -5,14 +5,18 @@
 
 #include "MultiplayerGameSubsystem.h"
 #include "NativeGameplayTags.h"
+#include "ResourceInstance.h"
 #include "ResourcesComponent.h"
 #include "Actions/Runtime/Public/ActionsComponent.h"
 #include "Camera/CameraComponent.h"
 #include "DynamicMeshSpawner/Runtime/Public/DynamicMeshSpawnerComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "MultiplayerGame/Server/Public/ServerPlayerState.h"
+#include "TPPMulti/ActionsAPI/Public/ActionsTags.h"
+#include "TPPMulti/Core/Gamemodes/Public/MatchGameMode.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/MeleeDamageCollider/Public/MeleeDamageColliderComponent.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
@@ -67,6 +71,38 @@ void AMatchPlayerCharacter::OnDynamicMeshSpawned(const FGameplayTag& InMeshTag, 
 		MeleeDamageColliderComponent->SetCollisionProfileName(CharacterData.DamageCollider_CollisionProfileName.Name);
 		DisableMeleeDamage();
 	}
+}
+
+void AMatchPlayerCharacter::OnHealthDepleted(const FGameplayTag& ResourceTag, UResourceInstance* ResourceInstance)
+{
+	ActionsComponent->TryExecuteAction(ActionTags::Death);
+	bIsAlive = false;
+
+	if (UMultiplayerGameSubsystem::IsHost(this))
+	{
+		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, FTimerDelegate::CreateUObject(this,
+			&AMatchPlayerCharacter::Respawn), UGameConstants::GetRespawnTime(), false);
+	}
+}
+
+void AMatchPlayerCharacter::NetMulticast_Respawn_Implementation()
+{
+	ActionsComponent->UnlockStack(ActionStackTags::GlobalStack);
+	ActionsComponent->UnlockStack(ActionStackTags::PlayerInput);
+
+	bIsAlive = true;
+	GetMesh()->GetAnimInstance()->StopAllMontages(0);
+}
+
+void AMatchPlayerCharacter::Respawn()
+{
+	NetMulticast_Respawn();
+	SetActorLocation(Cast<AMatchGameMode>(
+		UGameplayStatics::GetGameMode(this))->GetRandomRespawnPosition() +
+		FVector(0, 0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight()));
+
+	for (auto InitResourceData : CharacterData.ResourcesData)
+		ResourcesComponent->SetResourceValue(InitResourceData.Key, InitResourceData.Value.InitValue);
 }
 
 AMatchPlayerCharacter::AMatchPlayerCharacter()
@@ -182,6 +218,12 @@ void AMatchPlayerCharacter::LoadCharacterData(const FDataTableRowHandle& InDataR
 		{
 			UResourceInstance* ResourceInstance;
 			ResourcesComponent->SetupResource(ResourceData.Key, ResourceData.Value, ResourceInstance);
+
+			if (ResourceData.Key == ResourceHealth)
+			{
+				ResourceInstance->OnResourceDepleted.AddUniqueDynamic(this, &AMatchPlayerCharacter::OnHealthDepleted);
+				bIsAlive = true;
+			}
 		}
 	}
 }

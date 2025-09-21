@@ -6,7 +6,6 @@
 #include "UObject/Object.h"
 #include "ActionsStackInstance.generated.h"
 
-
 UCLASS()
 class ACTIONS_API UActionsStackInstance : public UObject
 {

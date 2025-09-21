@@ -14,8 +14,18 @@ class TPPMULTI_API AMatchGameMode : public AServerGameMode
 {
 	GENERATED_BODY()
 
+	UPROPERTY()
+	TArray<AActor*> PlayerStartActors;
+
+protected:
+
+	virtual void BeginPlay() override;
+	
 public:
 
 	AMatchGameMode();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetRandomRespawnPosition() const;
 	
 };
