@@ -42,6 +42,8 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants")
 	static float GetRespawnTime();
+
+	
 	
 #pragma endregion 
 
@@ -52,10 +54,16 @@ private:
 	UPROPERTY(EditAnywhere, Config, Category = "Match", DisplayName = "Match World", meta=(AllowedClasses="/Script/Engine.World"))
 	FSoftObjectPath MatchWorldPath;
 
+	UPROPERTY(EditAnywhere, Config)
+	float FinishMatchWidgetDisplayTime;
+	
 public:
 
 	UFUNCTION(BlueprintPure, Category = "GameConstants|Match")
 	static FSoftObjectPath GetMatchWorldPath();
+
+	UFUNCTION(BlueprintPure, Category = "GameConstants|Match")
+	static float GetFinishMatchWidgetDisplayTime();
 	
 #pragma endregion
 

@@ -13,6 +13,12 @@
 #include "TPPMulti/InputTags/Public/InputTags.h"
 
 
+void AMatchPlayerController::NetMulticast_OnPlayerWin_Implementation(const int32& InPlayerUID)
+{
+	bMatchFinished = true;
+	OnPlayerWin.Broadcast(InPlayerUID);
+}
+
 void AMatchPlayerController::SetupInputComponent()
 {
 	Super::SetupInputComponent();
@@ -42,15 +48,23 @@ InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatch
 	
 }
 
-#define CHECK_CHARACTER_ALIVE \
-AMatchPlayerCharacter* MatchPlayerCharacter = \
-	Cast<AMatchPlayerCharacter>(GetPawn()); \
-if (!IsValid(MatchPlayerCharacter)) return; \
-if (!MatchPlayerCharacter->GetIsAlive()) return;
+bool AMatchPlayerController::CanControlPawn() const
+{
+	if (bMatchFinished)
+		return false;
+	
+	AMatchPlayerCharacter* MatchPlayerCharacter = Cast<AMatchPlayerCharacter>(GetPawn());
+		if (!IsValid(MatchPlayerCharacter)) return false;
+		if (!MatchPlayerCharacter->GetIsAlive()) return false;
+
+	return true;
+}
+
+#define CAN_CONTROL if (!CanControlPawn()) return;
 
 void AMatchPlayerController::InputAction_Move_Triggered(const FInputActionValue& InInputValue)
 {
-	CHECK_CHARACTER_ALIVE
+	CAN_CONTROL
 	FVector RawValue = InInputValue.Get<FVector>();
 	const FRotator PawnRotation = GetPawn()->GetActorRotation();
 	RawValue = PawnRotation.RotateVector(RawValue);
@@ -59,7 +73,7 @@ void AMatchPlayerController::InputAction_Move_Triggered(const FInputActionValue&
 
 void AMatchPlayerController::InputAction_Camera_Triggered(const FInputActionValue& InInputValue)
 {
-	CHECK_CHARACTER_ALIVE
+	CAN_CONTROL
 	const FVector RawValue = InInputValue.Get<FVector>();
 	FRotator CurrentControlRotation = GetControlRotation();
 	CurrentControlRotation.Yaw += RawValue.X;
@@ -71,15 +85,15 @@ void AMatchPlayerController::InputAction_Camera_Triggered(const FInputActionValu
 
 void AMatchPlayerController::InputAction_Jump_Triggered(const FInputActionValue& InInputValue)
 {
-	CHECK_CHARACTER_ALIVE
+	CAN_CONTROL
 	ACharacter* LocalCharacter = Cast<ACharacter>(GetPawn());
 	LocalCharacter->Jump();
 }
 
 void AMatchPlayerController::InputAction_PrimaryAction_Triggered(const FInputActionValue& InInputValue)
 {
-	CHECK_CHARACTER_ALIVE
+	CAN_CONTROL
 	UActionsInterface::TryExecuteAction(GetPawn(), ActionTags::PrimaryAction);
 }
 
-#undef CHECK_CHARACTER_ALIVE
+#undef CAN_CONTROL

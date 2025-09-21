@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "ServerGameMode.generated.h"
 
+class AServerPlayerController;
 /**
  * 
  */
@@ -20,6 +21,9 @@ public:
 	virtual void Logout(AController* Exiting) override;
 
 protected:
+
+	UPROPERTY()
+	TArray<APlayerController*> LoggedPlayers;
 
 	virtual void BeginPlay() override;
 	

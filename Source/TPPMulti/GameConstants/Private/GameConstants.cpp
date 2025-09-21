@@ -25,6 +25,11 @@ FSoftObjectPath UGameConstants::GetMatchWorldPath()
 	return Get()->MatchWorldPath;
 }
 
+float UGameConstants::GetFinishMatchWidgetDisplayTime()
+{
+	return Get()->FinishMatchWidgetDisplayTime;
+}
+
 float UGameConstants::GetCameraBoomLen()
 {
 	return Get()->CameraBoomLen;

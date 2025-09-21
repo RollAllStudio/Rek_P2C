@@ -2,6 +2,8 @@
 
 
 #include "TPPMulti/Core/Gamemodes/Public/MatchGameMode.h"
+
+#include "MultiplayerGameConstants.h"
 #include "MultiplayerGameSubsystem.h"
 #include "GameFramework/PlayerStart.h"
 #include "Kismet/GameplayStatics.h"
@@ -10,11 +12,28 @@
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerCharacter.h"
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerController.h"
 #include "TPPMulti/Core/PlayerStates/Public/MatchPlayerState.h"
+#include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/UI/HUD/Public/MatchHUD.h"
 
-void AMatchGameMode::FinishMatch()
+void AMatchGameMode::FinishMatch(const int32& InWinnerUID)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, "Match finished");
+	for (auto LoggedPlayer : LoggedPlayers)
+	{
+		AMatchPlayerController* MatchLoggedPlayer =
+			Cast<AMatchPlayerController>(LoggedPlayer);
+
+		if (IsValid(MatchLoggedPlayer))
+			MatchLoggedPlayer->NetMulticast_OnPlayerWin(InWinnerUID);
+	}
+
+	GetWorld()->GetTimerManager().SetTimer(PostFinishMatchTimer, FTimerDelegate::CreateUObject(
+		this, &AMatchGameMode::TravelToLobby), UGameConstants::GetFinishMatchWidgetDisplayTime(), false);
+	
+}
+
+void AMatchGameMode::TravelToLobby()
+{
+	UMultiplayerGameSubsystem::TravelToMap(this, UMultiplayerGameConstants::GetLobbyWorldPath());
 }
 
 void AMatchGameMode::BeginPlay()
@@ -48,7 +67,7 @@ void AMatchGameMode::ScorePlayer(AMatchPlayerState* InPlayerState)
 	
 	if (InPlayerState->GetPlayerScore() >= KillsWinCondition)
 	{
-		FinishMatch();
+		FinishMatch(InPlayerState->GetServerUID());
 		InPlayerState->IncrementWins();
 	}
 }

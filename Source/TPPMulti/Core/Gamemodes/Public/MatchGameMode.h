@@ -19,7 +19,13 @@ class TPPMULTI_API AMatchGameMode : public AServerGameMode
 	TArray<AActor*> PlayerStartActors;
 
 	UFUNCTION()
-	void FinishMatch();
+	void FinishMatch(const int32& InWinnerUID);
+
+	UFUNCTION()
+	void TravelToLobby();
+
+	UPROPERTY()
+	FTimerHandle PostFinishMatchTimer;
 
 protected:
 

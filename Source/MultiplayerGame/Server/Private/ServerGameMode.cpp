@@ -10,6 +10,7 @@
 void AServerGameMode::PostLogin(APlayerController* NewPlayer)
 {
 	Super::PostLogin(NewPlayer);
+	LoggedPlayers.Add(NewPlayer);
 	Cast<AServerPlayerController>(NewPlayer)->Client_LoginServerPlayer();
 }
 
