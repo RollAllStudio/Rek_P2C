@@ -10,7 +10,8 @@ public class Actions : ModuleRules
             new string[]
             {
                 "Core",
-                "GameplayTags"
+                "GameplayTags",
+                "Niagara"
             }
         );
 

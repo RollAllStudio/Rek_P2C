@@ -92,6 +92,7 @@ void AMatchPlayerCharacter::NetMulticast_Respawn_Implementation()
 {
 	ActionsComponent->UnlockStack(ActionStackTags::GlobalStack);
 	ActionsComponent->UnlockStack(ActionStackTags::PlayerInput);
+	ActionsComponent->UnlockStack(ActionStackTags::PickupStack);
 
 	bIsAlive = true;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
