@@ -16,6 +16,11 @@ void UMyServerPlayerData::InitByPlayerState(AServerPlayerState* InPlayerState)
 	
 }
 
+void UMyServerPlayerData::IncrementWins()
+{
+	Wins++;
+}
+
 void UMyServerPlayerData::SetCharacterRow(const FDataTableRowHandle& InCharacterRow)
 {
 	CharacterRow = InCharacterRow;

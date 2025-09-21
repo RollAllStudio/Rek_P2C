@@ -67,17 +67,18 @@ protected:
 	
 	virtual void BeginPlay() override;
 	virtual void OnPlayerStateChanged(APlayerState* NewPlayerState, APlayerState* OldPlayerState) override;
-	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
-		AController* EventInstigator, AActor* DamageCauser) override;
 
 #pragma endregion
 
-#pragma region DeathAndRespawn
+#pragma region Damage/Death/Respawn
 
 private:
 
 	UPROPERTY()
 	FTimerHandle RespawnTimer;
+
+	UPROPERTY()
+	AMatchPlayerCharacter* LastDamagingCharacter;
 
 	UPROPERTY(BlueprintGetter = GetIsAlive)
 	bool bIsAlive;
@@ -90,6 +91,11 @@ private:
 
 	UFUNCTION(NetMulticast, Reliable)
 	void NetMulticast_Respawn();
+
+protected:
+
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent,
+		AController* EventInstigator, AActor* DamageCauser) override;
 	
 public:
 

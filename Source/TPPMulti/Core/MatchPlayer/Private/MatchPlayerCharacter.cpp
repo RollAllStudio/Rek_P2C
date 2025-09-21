@@ -14,9 +14,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "MultiplayerGame/Server/Public/ServerPlayerState.h"
 #include "TPPMulti/ActionsAPI/Public/ActionsTags.h"
 #include "TPPMulti/Core/Gamemodes/Public/MatchGameMode.h"
+#include "TPPMulti/Core/PlayerStates/Public/MatchPlayerState.h"
 #include "TPPMulti/GameConstants/Public/GameConstants.h"
 #include "TPPMulti/MeleeDamageCollider/Public/MeleeDamageColliderComponent.h"
 #include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
@@ -82,6 +82,9 @@ void AMatchPlayerCharacter::OnHealthDepleted(const FGameplayTag& ResourceTag, UR
 	{
 		GetWorld()->GetTimerManager().SetTimer(RespawnTimer, FTimerDelegate::CreateUObject(this,
 			&AMatchPlayerCharacter::Respawn), UGameConstants::GetRespawnTime(), false);
+
+		AMatchPlayerState* MatchPlayerState = Cast<AMatchPlayerState>(LastDamagingCharacter->GetPlayerState());
+		Cast<AMatchGameMode>(UGameplayStatics::GetGameMode(this))->ScorePlayer(MatchPlayerState);
 	}
 }
 
@@ -183,6 +186,7 @@ float AMatchPlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& 
 	AController* EventInstigator, AActor* DamageCauser)
 {
 	ResourcesComponent->ConsumeResource(ResourceHealth, DamageAmount);
+	LastDamagingCharacter = Cast<AMatchPlayerCharacter>(DamageCauser);
 	return Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 }
 

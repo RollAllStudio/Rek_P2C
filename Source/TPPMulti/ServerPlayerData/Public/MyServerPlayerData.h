@@ -6,9 +6,6 @@
 #include "MultiplayerGame/Server/Public/ServerPlayerData.h"
 #include "MyServerPlayerData.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class TPPMULTI_API UMyServerPlayerData : public UServerPlayerData
 {
@@ -17,8 +14,11 @@ class TPPMULTI_API UMyServerPlayerData : public UServerPlayerData
 	UPROPERTY(BlueprintGetter = GetCharacterRow, BlueprintSetter = SetCharacterRow)
 	FDataTableRowHandle CharacterRow;
 
+	UPROPERTY(BlueprintGetter = GetWins)
+	int Wins;
+	
 public:
-
+	
 	virtual void InitByPlayerState(AServerPlayerState* InPlayerState) override;
 
 	UFUNCTION(BlueprintGetter)
@@ -27,6 +27,16 @@ public:
 		return CharacterRow;
 	}
 
+	UFUNCTION(BlueprintGetter)
+	int GetWins() const
+	{
+		return Wins;
+	}
+
+	UFUNCTION(BlueprintCallable)
+	void IncrementWins();
+
 	UFUNCTION(BlueprintSetter)
 	void SetCharacterRow(const FDataTableRowHandle& InCharacterRow);
+	
 };

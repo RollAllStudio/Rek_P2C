@@ -6,6 +6,7 @@
 #include "MultiplayerGame/Server/Public/ServerGameMode.h"
 #include "MatchGameMode.generated.h"
 
+class AMatchPlayerState;
 /**
  * 
  */
@@ -17,6 +18,9 @@ class TPPMULTI_API AMatchGameMode : public AServerGameMode
 	UPROPERTY()
 	TArray<AActor*> PlayerStartActors;
 
+	UFUNCTION()
+	void FinishMatch();
+
 protected:
 
 	virtual void BeginPlay() override;
@@ -27,5 +31,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetRandomRespawnPosition() const;
+
+	UFUNCTION(BlueprintCallable)
+	void ScorePlayer(AMatchPlayerState* InPlayerState);
 	
 };
