@@ -19,6 +19,9 @@ class TPPMULTI_API USessionJoinSlotWidget : public UUserWidget
 	UFUNCTION()
 	void OnClicked_JoinSessionButton();
 
+	UFUNCTION()
+	void OnCanJoinSessionChanged(const bool InNewCanJoinSession);
+	
 	UPROPERTY(BlueprintGetter = GetSessionIndex)
 	int32 SessionIndex = INDEX_NONE;
 

@@ -175,6 +175,12 @@ void UMultiplayerGameSubsystem::SetLocalPlayerName_Internal(const FText& InNewPl
 {
 	TRY_CHANGE_LOCAL_TEXT(LocalPlayerName, InNewPlayerName, OnLocalPlayerNameChanged)
 	OnHostConditionsChanged();
+	const bool NewCanJoinSession = !InNewPlayerName.IsEmpty();
+	if (NewCanJoinSession != bCanJoinSession)
+	{
+		bCanJoinSession = NewCanJoinSession;
+		OnCanJoinSessionChanged.Broadcast(bCanJoinSession);
+	}
 }
 
 void UMultiplayerGameSubsystem::SetLocalPlayerUID_Internal(const int32& InNewUID)
@@ -254,6 +260,11 @@ FText UMultiplayerGameSubsystem::GetLocalPlayerName(const UObject* WorldContextO
 bool UMultiplayerGameSubsystem::CanHostSession(const UObject* WorldContextObject)
 {
 	return GetSubsystem(WorldContextObject)->bCanHostSession;
+}
+
+bool UMultiplayerGameSubsystem::CanJoinSession(const UObject* WorldContextObject)
+{
+	return GetSubsystem(WorldContextObject)->bCanJoinSession;
 }
 
 FText UMultiplayerGameSubsystem::GetLocalJoinedSessionName(const UObject* WorldContextObject)

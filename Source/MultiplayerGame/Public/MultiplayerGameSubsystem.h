@@ -118,6 +118,9 @@ private:
 	bool bCanHostSession;
 
 	UPROPERTY()
+	bool bCanJoinSession;
+
+	UPROPERTY()
 	TMap<FGameplayTag, int> WinConditions;
 	
 	void SetLocalSessionName_Internal(const FText& InNewSessionName);
@@ -151,6 +154,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static bool CanHostSession(const UObject* WorldContextObject);
+
+	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
+	static bool CanJoinSession(const UObject* WorldContextObject);
 	
 	UFUNCTION(BlueprintPure, Category = "MultiplayerGame|LocalData", meta=(WorldContext = WorldContextObject))
 	static FText GetLocalJoinedSessionName(const UObject* WorldContextObject);
@@ -174,6 +180,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMultiplayerGameSubsystem_BoolEvent_Signature OnCanHostSessionChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FMultiplayerGameSubsystem_BoolEvent_Signature OnCanJoinSessionChanged;
 
 	UPROPERTY(BlueprintAssignable)
 	FMultiplayerGameSubsystem_Int32Event_Signature OnLocalPlayerUIDChanged;

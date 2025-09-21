@@ -13,8 +13,13 @@ void USessionJoinSlotWidget::OnClicked_JoinSessionButton()
 	UMultiplayerGameSubsystem::JoinSessionByIndex(this, SessionIndex);
 }
 
+void USessionJoinSlotWidget::OnCanJoinSessionChanged(const bool InNewCanJoinSession)
+{
+	JoinSessionButton->SetIsEnabled(InNewCanJoinSession);
+}
+
 void USessionJoinSlotWidget::SetupSlot(const int32& InSearchIndex,
-	const FOnlineSessionSearchResult& InSessionSearchResult)
+                                       const FOnlineSessionSearchResult& InSessionSearchResult)
 {
 	SessionIndex = InSearchIndex;
 
@@ -40,4 +45,7 @@ void USessionJoinSlotWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
 	JoinSessionButton.Get()->OnClicked.AddUniqueDynamic(this, &USessionJoinSlotWidget::OnClicked_JoinSessionButton);
+	OnCanJoinSessionChanged(UMultiplayerGameSubsystem::CanJoinSession(this));
+	UMultiplayerGameSubsystem::GetSubsystem(this)->OnCanJoinSessionChanged.AddUniqueDynamic(
+		this, &USessionJoinSlotWidget::OnCanJoinSessionChanged);
 }
