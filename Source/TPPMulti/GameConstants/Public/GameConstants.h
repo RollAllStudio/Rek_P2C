@@ -43,7 +43,7 @@ public:
 
 private:
 	
-	UPROPERTY(EditAnywhere, Config, Category = "Match", DisplayName = "Lobby World", meta=(AllowedClasses="/Script/Engine.World"))
+	UPROPERTY(EditAnywhere, Config, Category = "Match", DisplayName = "Match World", meta=(AllowedClasses="/Script/Engine.World"))
 	FSoftObjectPath MatchWorldPath;
 
 public:

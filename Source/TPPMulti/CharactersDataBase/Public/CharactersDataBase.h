@@ -38,19 +38,19 @@ struct FCharacterData : public FTableRowBase
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	TMap<FGameplayTag, FResourceInitData> ResourcesData;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DamageCollider", DisplayName = Radius)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float DamageCollider_Radius;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DamageCollider", DisplayName = HalfHeight)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	float DamageCollider_HalfHeight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DamageCollider", DisplayName = ProfileName)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FCollisionProfileName DamageCollider_CollisionProfileName;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DamageCollider", DisplayName = AttachSocket)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FName DamageCollider_AttachSocket;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Gameplay|DamageCollider", DisplayName = Offset)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Gameplay)
 	FTransform DamageCollider_Offset;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
