@@ -53,6 +53,9 @@ private:
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetCharacterNameTextBlock)
 	TObjectPtr<UTextBlock> CharacterNameTextBlock;
 
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetWinsTextBlock)
+	TObjectPtr<UTextBlock> WinsTextBlock;
+
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetReadyImage)
 	TObjectPtr<UImage> ReadyImage;
 
@@ -75,6 +78,12 @@ public:
 	UTextBlock* GetCharacterNameTextBlock() const
 	{
 		return CharacterNameTextBlock;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UTextBlock* GetWinsTextBlock() const
+	{
+		return WinsTextBlock;
 	}
 	
 #pragma endregion 

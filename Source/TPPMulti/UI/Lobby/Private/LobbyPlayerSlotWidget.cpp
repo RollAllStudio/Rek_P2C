@@ -2,10 +2,13 @@
 
 
 #include "TPPMulti/UI/Lobby/Public/LobbyPlayerSlotWidget.h"
+
+#include "MultiplayerGameSubsystem.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "TPPMulti/CharactersDataBase/Public/CharactersDataBase.h"
 #include "TPPMulti/Core/PlayerStates/Public/LobbyPlayerState.h"
+#include "TPPMulti/ServerPlayerData/Public/MyServerPlayerData.h"
 
 void ULobbyPlayerSlotWidget::OnPlayerNameChanged(const FString& InNewName)
 {
@@ -47,6 +50,16 @@ void ULobbyPlayerSlotWidget::SetPlayerState_Internal(ALobbyPlayerState* InPlayer
 		InPlayerState->OnCharacterRowChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnCharacterRowChanged);
 		OnPlayerReadyChanged(InPlayerState->GetIsReady());
 		InPlayerState->OnIsReadyChanged.AddUniqueDynamic(this, &ULobbyPlayerSlotWidget::OnPlayerReadyChanged);
+
+		UMyServerPlayerData* ServerPlayerData =
+			Cast<UMyServerPlayerData>(UMultiplayerGameSubsystem::GetServerPlayerData(this,
+				InPlayerState->GetServerUID()));
+
+		int WinsTosSet = 0;
+		if (IsValid(ServerPlayerData))
+			WinsTosSet = ServerPlayerData->GetWins();
+
+		WinsTextBlock->SetText(FText::FromString(FString::FromInt(WinsTosSet)));
 	}
 }
 
