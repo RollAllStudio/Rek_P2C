@@ -12,6 +12,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchPlayerController_OnPlayerWin_S
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMatchPlayerController_OnNewPawnSet_Signature,
 	APawn*, NewPawn);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FMatchPlayerController_VoidEvent_Signature);
+
 UCLASS()
 class TPPMULTI_API AMatchPlayerController : public AServerPlayerController
 {
@@ -27,6 +29,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FMatchPlayerController_OnNewPawnSet_Signature OnNewPawnSet_Signature;
+
+	UPROPERTY(BlueprintAssignable)
+	FMatchPlayerController_VoidEvent_Signature OnOpenScoreboardInput;
+
+	UPROPERTY(BlueprintAssignable)
+	FMatchPlayerController_VoidEvent_Signature OnCloseScoreboardInput;
 	
 protected:
 	
@@ -35,6 +43,7 @@ protected:
 
 private:
 
+	bool bIsScoreboardShown = false;
 	bool bMatchFinished = false;
 	bool CanControlPawn() const;
 	
@@ -49,5 +58,14 @@ private:
 
 	UFUNCTION()
 	void InputAction_PrimaryAction_Triggered(const FInputActionValue& InInputValue);
+
+	UFUNCTION()
+	void InputAction_Scoreboard_Start(const FInputActionValue& InInputValue);
+
+	UFUNCTION()
+	void InputAction_Scoreboard_Complete(const FInputActionValue& InInputValue);
+
+	UFUNCTION()
+	void InputAction_LeaveSession_Triggered(const FInputActionValue& InInputValue);
 	
 };

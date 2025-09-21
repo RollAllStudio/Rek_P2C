@@ -14,9 +14,15 @@ void AMatchPlayerState::IncrementWins_Implementation()
 	ServerPlayerData->IncrementWins();
 }
 
+void AMatchPlayerState::OnRep_PlayerScore()
+{
+	OnPlayerScoreChanged.Broadcast(PlayerScore);
+}
+
 void AMatchPlayerState::ScorePlayer()
 {
 	PlayerScore ++;
+	OnPlayerScoreChanged.Broadcast(PlayerScore);
 }
 
 void AMatchPlayerState::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const

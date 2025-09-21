@@ -67,6 +67,16 @@ void UMatchHUDWidget::OnResourceInitialized(const FGameplayTag& InResourceTag)
 	
 }
 
+void UMatchHUDWidget::OnShowScoreboard()
+{
+	MainSwitcher->SetActiveWidgetIndex(2);
+}
+
+void UMatchHUDWidget::OnHideScoreboard()
+{
+	MainSwitcher->SetActiveWidgetIndex(0);
+}
+
 void UMatchHUDWidget::ClearResourcesBars()
 {
 	HealthBar->SetResourceInstance(nullptr);
@@ -80,6 +90,9 @@ void UMatchHUDWidget::NativeOnInitialized()
 	MainSwitcher->SetActiveWidgetIndex(0);
 	AMatchPlayerController* MatchPlayerController =
 		Cast<AMatchPlayerController>(GetOwningPlayer());
+
+	MatchPlayerController->OnOpenScoreboardInput.AddUniqueDynamic(this, &UMatchHUDWidget::OnShowScoreboard);
+	MatchPlayerController->OnCloseScoreboardInput.AddUniqueDynamic(this, &UMatchHUDWidget::OnHideScoreboard);
 
 	OnControllerPawnChanged(MatchPlayerController->GetPawn());
 	MatchPlayerController->OnNewPawnSet_Signature.AddUniqueDynamic(this, &UMatchHUDWidget::OnControllerPawnChanged);

@@ -4,6 +4,7 @@
 #include "TPPMulti/Core/MatchPlayer/Public/MatchPlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "MultiplayerGameSubsystem.h"
 #include "Actions/Runtime/Public/ActionsInterface.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/PawnMovementComponent.h"
@@ -16,6 +17,7 @@
 void AMatchPlayerController::NetMulticast_OnPlayerWin_Implementation(const int32& InPlayerUID)
 {
 	bMatchFinished = true;
+	bIsScoreboardShown = false;
 	OnPlayerWin.Broadcast(InPlayerUID);
 }
 
@@ -42,6 +44,12 @@ InputComp -> BindAction( ActionRefVar,  ETriggerEvent:: EventType, this, &AMatch
 		BIND_ACTION(JumpActionConfig, Input_Jump, LocalInputComponent, Triggered, InputAction_Jump_Triggered)
 		BIND_ACTION(PrimaryActionConfig, Input_PrimaryAction, LocalInputComponent,
 			Triggered, InputAction_PrimaryAction_Triggered)
+		BIND_ACTION(StartScoreboardActionConfig, Input_Scoreboard, LocalInputComponent, Started,
+			InputAction_Scoreboard_Start)
+		BIND_ACTION(StopScoreboardActionConfig, Input_Scoreboard, LocalInputComponent, Completed,
+			InputAction_Scoreboard_Complete)
+		BIND_ACTION(CloseSessionActionConfig, Input_LeaveSession, LocalInputComponent, Triggered,
+			InputAction_LeaveSession_Triggered)
 	
 	#undef BIND_ACTION
 	}
@@ -100,6 +108,27 @@ void AMatchPlayerController::InputAction_PrimaryAction_Triggered(const FInputAct
 {
 	CAN_CONTROL
 	UActionsInterface::TryExecuteAction(GetPawn(), ActionTags::PrimaryAction);
+}
+
+void AMatchPlayerController::InputAction_Scoreboard_Start(const FInputActionValue& InInputValue)
+{
+	CAN_CONTROL
+	bIsScoreboardShown = true;
+	OnOpenScoreboardInput.Broadcast();
+}
+
+void AMatchPlayerController::InputAction_Scoreboard_Complete(const FInputActionValue& InInputValue)
+{
+	CAN_CONTROL
+	bIsScoreboardShown = false;
+	OnCloseScoreboardInput.Broadcast();
+}
+
+void AMatchPlayerController::InputAction_LeaveSession_Triggered(const FInputActionValue& InInputValue)
+{
+	CAN_CONTROL
+	if (bIsScoreboardShown)
+		UMultiplayerGameSubsystem::CloseSession(this);
 }
 
 #undef CAN_CONTROL

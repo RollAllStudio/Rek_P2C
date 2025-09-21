@@ -10,5 +10,7 @@ namespace InputTags
 	UE_DEFINE_GAMEPLAY_TAG(Input_Camera, "Input.Camera")
 	UE_DEFINE_GAMEPLAY_TAG(Input_Jump, "Input.Jump")
 	UE_DEFINE_GAMEPLAY_TAG(Input_PrimaryAction, "Input.PrimaryAction")
+	UE_DEFINE_GAMEPLAY_TAG(Input_Scoreboard, "Input.Scoreboard")
+	UE_DEFINE_GAMEPLAY_TAG(Input_LeaveSession, "Input.LeaveSession")
 	
 }

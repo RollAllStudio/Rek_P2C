@@ -30,6 +30,12 @@ class TPPMULTI_API UMatchHUDWidget : public UUserWidget
 	UFUNCTION()
 	void OnResourceInitialized(const FGameplayTag& InResourceTag);
 
+	UFUNCTION()
+	void OnShowScoreboard();
+
+	UFUNCTION()
+	void OnHideScoreboard();
+
 	UPROPERTY()
 	UResourcesComponent* ResourcesComponent;
 
@@ -61,6 +67,9 @@ private:
 
 	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetManaBar)
 	TObjectPtr<UResourceBarWidget> ManaBar;
+
+	UPROPERTY(meta=(BindWidget), BlueprintGetter = GetScoreboardOverlay)
+	TObjectPtr<UOverlay> ScoreboardOverlay;
 	
 public:
 
@@ -104,6 +113,12 @@ public:
 	UResourceBarWidget* GetManaBar() const
 	{
 		return ManaBar;
+	}
+
+	UFUNCTION(BlueprintGetter)
+	UOverlay* GetScoreboardOverlay() const
+	{
+		return ScoreboardOverlay;
 	}
 	
 #pragma endregion 
